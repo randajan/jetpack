@@ -2,7 +2,6 @@
   "name": "@randajan/jetpack",
   "version": "1.0.0",
   "description": "Collection of devtools",
-  "author": "randajan",
   "license": "MIT",
   "repository": "randajan/jetpack",
   "main": "dist/index.js",
@@ -22,9 +21,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "prop-types": "^15.5.4",
-    "react": "^15.0.0 || ^16.0.0",
-    "react-dom": "^15.0.0 || ^16.0.0"
+
   },
   "devDependencies": {
     "@svgr/rollup": "^2.4.1",
@@ -56,6 +53,23 @@
     "rollup-plugin-url": "^1.4.0"
   },
   "files": [
-    "dist"
-  ]
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "jetpack",
+    "js",
+    "javascript",
+    "randajan",
+    "devtools"
+  ],
+  "homepage": "https://github.com/randajan/jetpack",
+  "bugs": {
+    "url": "https://github.com/randajan/jetpack/issues"
+  },
+  "author": {
+    "name": "Jan Randa",
+    "email": "jnranda@gmail.com",
+    "url": "https://www.linkedin.com/in/randajan/"
+  }
 }

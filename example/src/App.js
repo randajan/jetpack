@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 
-import ExampleComponent from '@randajan/jetpack'
+import jet from '@randajan/jetpack';
+
+window.jet = jet;
 
 export default class App extends Component {
   render () {
     return (
       <div>
-        <ExampleComponent text='Modern React component module' />
+        Open console and type "jet". Try what you wish.
       </div>
     )
   }
