@@ -6,7 +6,7 @@
         {
             "label": "NPM publish",
             "type": "shell",
-            "command": "npm publish --access-public",
+            "command": "npm publish --access=public",
             "dependsOn": [
                 "GIT commit"
             ],

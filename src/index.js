@@ -17,17 +17,17 @@ const jet = {
         r = r.sort((a,b)=>b.priority-a.priority).map(_=>_.name);
         return all ? r : r[0];
     },
-    isMap:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.mapable);},
+    isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.keys);},
     isEmpty:function(any) {
         const a = typeof any;
-        if (!jet.isMap(any)) {return a !== "boolean" && any !== 0 && !any;}
+        if (!jet.isMapable(any)) {return a !== "boolean" && any !== 0 && !any;}
         for (let i in any) {return false;} return true;
     },
     isFull:function(any) {return !jet.isEmpty(any);},
-    is:function(type, any, inclusive) { //special recognize "array", "element", "empty", "full", "map"
+    is:function(type, any, inclusive) { //special recognize "array", "element", "empty", "full", "mapable"
         const t = typeof type;
         if (t === "function" || t === "object") {return any instanceof type;} //is object comparing?
-        if (type === "map") {return jet.isMap(any);}
+        if (type === "mapable") {return jet.isMapable(any);}
         if (type === "empty") {return jet.isEmpty(any);}
         if (type === "full") {return jet.isFull(any);}
         return inclusive ? jet.type(any, true).includes(type) : type === jet.type(any);
@@ -35,7 +35,7 @@ const jet = {
     create:function(type, ...args) {const t = jet.temp.types[type]; return (t && t.create) ? t.create(...args) : null;},
     copy:function(any) {const t = temp.types[jet.type(any)]; return (t && t.copy) ? t.copy(any) : any},
     factory:function(create, copy, type, ...args) {
-        if (jet.isMap(type)) {
+        if (jet.isMapable(type)) {
             for (let i in type) {type[i] = jet.factory(create, copy, ...type[i]);}
             return type;
         }
@@ -46,9 +46,10 @@ const jet = {
     get:function(...args) {return jet.factory(true, false, ...args);},
     pull:function(...args) {return jet.factory(true, true, ...args);},
 
-    run:function(f, ...args) {
-        if (jet.isMap(f)) {let c = 0; for (let i in f) {c += jet.run(f[i], ...args);} return c;}
-        if (jet.is("function", f)) { f(...args); return true;} else {return false;}
+    keys:function(any) {const t = jet.temp.types[jet.type(any)]; return (t && t.keys) ? t.keys(any) : null;},
+    run:function(any, ...args) {
+        if (jet.is("function", any)) {return any(...args);}
+        return jet.obj.map(any, f=>console.log(f), true);
     },
     temp,
     num,
@@ -61,23 +62,26 @@ const jet = {
     test
 };
 
-jet.type.define = function(priority, name, body, create, copy, mapable) {
+jet.type.define = function(priority, name, body, create, copy, keys) {
     const types = jet.temp.types;
     if (types[name]) {console.log(name, "type name is allready taken!!!"); return false;}
-    return !!(types[name] = {priority, name, body, create, copy, mapable});
+    return !!(types[name] = {priority, name, body, create, copy, keys});
 };
 
-jet.type.define(-3, "map", null, (...a)=>new Array(...a), _=>jet.copy(_), true); //map is hardcoded special type
+jet.type.define(-3, "mapable", null, (...a)=>new Array(...a), _=>jet.copy(_)); //map is hardcoded special type
 
-jet.type.define(-2, "object", Object, (...a)=>new Object(...a), _=>Object.assign({}, _), true);
-jet.type.define(-1, "array", Array, (...a)=>new Array(...a), _=>Array.from(_), true);
+jet.type.define(-2, "object", Object, (...a)=>new Object(...a), _=>Object.assign({}, _), _=>Object.keys(_));
+jet.type.define(-1, "array", Array, (...a)=>new Array(...a), _=>Array.from(_), _=>_.keys());
 jet.type.define(-1, "boolean", Boolean, Boolean);
 jet.type.define(-1, "string", String, String);
 jet.type.define(-1, "number", Number, Number);
 jet.type.define(-1, "symbol", Symbol, Symbol);
 jet.type.define(-1, "regexp", RegExp, RegExp, _=>RegExp(_.source));
 jet.type.define(-1, "element", Element);
-jet.type.define(-1, "function", Function, _=>new Function, _=>(...a)=>_(...a));
+jet.type.define(-1, "function", Function, (...a)=>new Function(...a), _=>(...a)=>_(...a));
+
+jet.type.define(-1, "set", Set, (...a)=>new Set(...a), _=>new Set(_));
+jet.type.define(-1, "map", Map, (...a)=>new Map(...a), _=>new Map(_));
 
 /*EXTEND STRING PROTOTYPE*/
 

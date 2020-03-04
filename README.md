@@ -52,9 +52,9 @@ _Return true on any type of variable that has mapable=true on its type definitio
 * Return
   * _true when variable is mapable_
 * Example
-  * jet.isMap([]) === true
-  * jet.isMap({}) === true;
-  * jet.isMap("foo") === false;
+  * jet.isMapable([]) === true
+  * jet.isMapable({}) === true;
+  * jet.isMapable("foo") === false;
 
 ### __jet.isEmpty / jet.isFull__
 _Catching empty mapable objects and NaN. isFull is just inverse of function isEmpty_
@@ -77,7 +77,7 @@ _Check the passed type with result from instanceof compare || jet.type || jet.is
   * inclusive: _boolean_
 * Return
   * type=class: _any instanceof type_
-  * type="map": _jet.isMap()_
+  * type="mapable": _jet.isMapable()_
   * type="empty": _jet.isEmpty()_
   * type="full": _jet.isFull()_
   * inclusive=true: _true when the type is included in result of jet.type all=true_
@@ -97,7 +97,7 @@ _Will create instance by type (if there is defined create function)_
 * Return
   * _new instance_
 * Example
-  * jet.create("map") == [];
+  * jet.create("mapable") == [];
   * jet.create("array", "foo", "bar") == ["foo", "bar"];
   * jet.create("object") == {};
 

@@ -13,13 +13,13 @@ export default {
     },
     indexOf: function(obj, val) {var o = jet.get("object", obj); if (o.indexOf) {return o.indexOf(val);} for (var i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
-        let [o, pa] = jet.get([["map"], ["array", path, jet.get("string", path).split(".")]]);
-        for (let p of pa) { o = o[p]; if (jet.isEmpty(o) || !jet.is("map", o)) {return def;};}
+        let [o, pa] = jet.get([["mapable", obj], ["array", path, jet.get("string", path).split(".")]]);
+        for (let p of pa) { o = o[p]; if (jet.isEmpty(o) || !jet.isMapable(o)) {return def;};}
         return o;
     },
     set: function(obj, path, val, force) {
         const pa = jet.get("array", path, jet.get("string", path).split("."));
-        let o = jet.get("map", obj, isNaN(Number(pa[0])) ? {} : []), r = o;
+        let o = jet.get("mapable", obj, isNaN(Number(pa[0])) ? {} : []), r = o;
         for (let [i, p] of pa.entries()) {
             let blank = o[p] == null, last = i === pa.length-1;
             if (!force && blank !== last) {return false;}
@@ -28,7 +28,7 @@ export default {
         return r;
     },
     join: function(obj, comma, equation, lQuote, rQuote) {
-        const [o, c, e, r, l] = jet.get([["map", obj], ["string", comma, ", "], ["string", equation], ["string", rQuote], ["string", lQuote]]);
+        const [o, c, e, r, l] = jet.get([["mapable", obj], ["string", comma, ", "], ["string", equation], ["string", rQuote], ["string", lQuote]]);
         let n = ""; for (var i in o) {if (e || jet.isFull(o[i])) {n += (n?c:"")+((e?(l+i+l+e):"")+(r+o[i]+r));}} return n;
     },
     // clean: function(obj, any) {
@@ -48,13 +48,12 @@ export default {
         return jet.obj.map(obj, _=>_, true);
     },
     map: function(obj, fce, deep, uncover, path) { //uncover = iterate even through non enumerable
-        const [o, f, p] = jet.pull([["map", obj], ["function", fce], ["array", path]]), d = p.length; 
-        const m = uncover ? Object.getOwnPropertyNames(o) : !jet.is("array", o) ? Object.keys(o) : o;
-        m.map((v, k)=>{
-            if (m !== o) {k = v; v = o[k];} 
-            p[d] = k;
-            o[k] = (deep && jet.isMap(v)) ? jet.obj.map(v, f, deep, uncover, p) : f(v, k, p);
-        });
+        const [o, f, p] = jet.pull([["mapable", obj], ["function", fce], ["array", path]]), d = p.length; 
+        const m = uncover ? Object.getOwnPropertyNames(o) : jet.keys(o);
+        for (let k of m) {
+            let v = o[k]; p[d] = k;
+            o[k] = (deep && jet.isMapable(v)) ? jet.obj.map(v, f, deep, uncover, p) : f(v, k, p);
+        };
         return o;
     },
     // mirror:function(to, from) {
