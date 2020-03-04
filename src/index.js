@@ -17,7 +17,7 @@ const jet = {
         r = r.sort((a,b)=>b.priority-a.priority).map(_=>_.name);
         return all ? r : r[0];
     },
-    isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.keys);},
+    isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.list);},
     isEmpty:function(any) {
         const a = typeof any;
         if (!jet.isMapable(any)) {return a !== "boolean" && any !== 0 && !any;}
@@ -45,11 +45,19 @@ const jet = {
     filter:function(...args) {return jet.factory(false, false, ...args);},
     get:function(...args) {return jet.factory(true, false, ...args);},
     pull:function(...args) {return jet.factory(true, true, ...args);},
-
-    keys:function(any) {const t = jet.temp.types[jet.type(any)]; return (t && t.keys) ? t.keys(any) : null;},
+    key:{
+        touch: function(op, any, key, val) {
+            const t = jet.temp.types[jet.type(any)]; 
+            if (t && t[op]) {return t[op](any, key, val);}
+        },
+        list: function(any) {return jet.key.touch("list", any);},
+        get: function(...args) {return jet.key.touch("get", ...args);},
+        set: function(...args) {return jet.key.touch("set", ...args);},
+        rem: function(...args) {return jet.key.touch("rem", ...args);}
+    },
     run:function(any, ...args) {
         if (jet.is("function", any)) {return any(...args);}
-        return jet.obj.map(any, f=>console.log(f), true);
+        return jet.obj.map(any, f=>jet.is("function", f) ? f(...args) : undefined, true);
     },
     temp,
     num,
@@ -62,10 +70,16 @@ const jet = {
     test
 };
 
-jet.type.define = function(priority, name, body, create, copy, keys) {
+
+jet.type.define = function(priority, name, body, create, copy, list, get, set, rem) {
     const types = jet.temp.types;
     if (types[name]) {console.log(name, "type name is allready taken!!!"); return false;}
-    return !!(types[name] = {priority, name, body, create, copy, keys});
+    if (list) {
+        get = get || ((_, k)=>_[k]);
+        set = set || ((_, k, v)=>_[k] = v);
+        rem = rem || ((_, k)=>delete _[k]);
+    }
+    return !!(types[name] = {priority, name, body, create, copy, list, get, set, rem});
 };
 
 jet.type.define(-3, "mapable", null, (...a)=>new Array(...a), _=>jet.copy(_)); //map is hardcoded special type

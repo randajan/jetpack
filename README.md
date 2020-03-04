@@ -10,10 +10,11 @@
 npm install --save @randajan/jetpack
 ```
 
+## About
+
+Maping objects, generic creating variables (even instance) with default, filtering by types, lot other stuff
+
 ## Main content
-
-I guess there is a lot of great and better library for the same purpose, but it was fun and pleasure to create this pack.
-
 
 ### __jet.type__
 _Superstructure of native typeof and instanceof methods_
@@ -37,14 +38,17 @@ _Defining custom types for detecting, creating and copying_
   * body: _class_
   * create: _function (for creating new instance)_
   * copy: _function (for perform copy)_
-  * mapable: _boolean (is this structure iterable?)_
+  * list: _function (retrieve keys of this type, if there is function it is also mapable=true)_
+  * get: _function (retrieve key of this type)_
+  * set: _function (set key of this type)_
+  * rem: _function (remove key of this type)_
 * Return
   * _true when successfully defined_
 * Example
   * jet.type.define(-1, "array", Array, _=>new Array(), _=>Array.from(_), true);
   * jet.type.define(-1, "element", Element);
 
-### __jet.isMap__
+### __jet.isMapable__
 _Return true on any type of variable that has mapable=true on its type definition_
 
 * Arguments
@@ -131,11 +135,23 @@ _Used for type function arguments, creating defaults and copy passed array/objec
   * jet.get("regexp", 1, "foo", ["bar"], {foo:"bar"}) == RegExp();
   * jet.pull([[map, {}], ["string", "foo"], ["regexp"]]) == [{}, "foo", RegExp()];
 
+### __jet.key.list / jet.key.get / jet.key.set / jet.key.rem__ _/ jet.touch_
+_Handle mapable objects (it requires defined type)_
+
+* Arguments
+  * any: _any variable_ 
+  * key: _any variable (usually string or number)_
+  * val: _any variable (used just for for set function)_
+* Return
+  * result from perform operation against the defined type_
+* Example
+  * jet.key.get({foo:"bar"}, "bar") === "bar";
+
 ### __jet.run__
 _Will run every function that will discover without collecting results_
 
 * Arguments
-  * any: _f (function || array/object with functions_
+  * any: _any (function || array/object with functions_
   * ...args: _arguments will be passed to every call_
 * Return
   * any=function: _true when it was run successfully_

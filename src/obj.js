@@ -14,7 +14,7 @@ export default {
     indexOf: function(obj, val) {var o = jet.get("object", obj); if (o.indexOf) {return o.indexOf(val);} for (var i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
         let [o, pa] = jet.get([["mapable", obj], ["array", path, jet.get("string", path).split(".")]]);
-        for (let p of pa) { o = o[p]; if (jet.isEmpty(o) || !jet.isMapable(o)) {return def;};}
+        for (let p of pa) {if (jet.isEmpty(o) || !jet.isMapable(o)) {return def;}; o = o[p];}
         return o;
     },
     set: function(obj, path, val, force) {
@@ -49,11 +49,14 @@ export default {
     },
     map: function(obj, fce, deep, uncover, path) { //uncover = iterate even through non enumerable
         const [o, f, p] = jet.pull([["mapable", obj], ["function", fce], ["array", path]]), d = p.length; 
-        const m = uncover ? Object.getOwnPropertyNames(o) : jet.keys(o);
+        const m = uncover ? Object.getOwnPropertyNames(o) : jet.key.list(o);
+        
         for (let k of m) {
-            let v = o[k]; p[d] = k;
-            o[k] = (deep && jet.isMapable(v)) ? jet.obj.map(v, f, deep, uncover, p) : f(v, k, p);
+            let v = jet.key.get(o, k); p[d] = k;
+            v = (deep && jet.isMapable(v)) ? jet.obj.map(v, f, deep, uncover, p) : f(v, k, p);
+            if (v !== undefined) {jet.key.set(o, k, v);} else {jet.key.rem(o, k);}
         };
+        
         return o;
     },
     // mirror:function(to, from) {

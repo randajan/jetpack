@@ -8,4 +8,11 @@ export default {
     // sort: function(arr, path, dir) { //sort array by path and direction
     //     var d = (dir*2-1)||1; return (arr && arr.sort) ? arr.sort(function(a, b) {console.log(a, path, jet.obj.get(a, path, 0));  return d*(jet.obj.get(b, path, 0) - jet.obj.get(a, path, 0));}) : arr;
     // },
+    clean: function(arr, rekey) {
+        [arr, rekey] = jet.get([["array", arr], ["boolean", rekey, true]]);
+        for (let i=arr.length-1; i>=0; i--) {
+            if (arr[i] == null) {arr.splice(i, 1);} else if (!rekey) {break;}
+        }
+        return arr;
+    }
 };
