@@ -31,4 +31,3 @@ jet.type.define(-1, "map", Map, (...a)=>new Map(...a), _=>new Map(_));
 jet.obj.map(jet.str, f=>jet.obj.addProperty(String.prototype, f.name, function(...args) {return f(this, ...args);}));
 
 export default jet;
-export {temp, num, str, color, time, obj, arr, rnd, test, zoo};
