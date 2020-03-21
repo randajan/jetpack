@@ -20,7 +20,7 @@ export default {
         while (true) {for (var y in s[0].q) {var r0 = s[0].q[y].charCodeAt(i), r1 = s[1].q[y].charCodeAt(i); if (r0 !== r1) {return (!r0 || r0 > r1) ? s[1].r : (!r1 || r1 > r0) ? s[0].r : null;}} i++;}
     },
     levenshtein: function(s0, s1, blend) {
-        var s = ((blend === false) ? [s0, s1] : [s0.blend(blend), s1.blend(blend)]); if (s[0] === s[1]) {return 1;} else if (!s[0] || !s[1]) {return 0;}
+        var s = ((blend === false) ? [s0, s1] : [s0.simplify(blend), s1.simplify(blend)]); if (s[0] === s[1]) {return 1;} else if (!s[0] || !s[1]) {return 0;}
         var l = [s[0].length, s[1].length], c = []; if (l[1] > l[0]) {l.reverse(); s.reverse();} 
         for (var i = 0; i <= l[0]; i++) {var oV = i; for (var j = 0; j <= l[1]; j++) {if (i === 0) {c[j] = j;} else if (j > 0) {var nV = c[j - 1]; 
         if (s[0].charAt(i - 1) !== s[1].charAt(j - 1)) {nV = Math.min(Math.min(nV, oV), c[j]) + 1;} c[j - 1] = oV; oV = nV;}} if (i > 0) {c[l[1]] = oV;}}
