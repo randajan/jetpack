@@ -14,7 +14,7 @@ export default {
     string: function(min, max, sqr) { //HOW TO GENERATE GREAT RANDOM STRING???
         const c = [jet.temp.consonant, jet.temp.vowels], p = c[0].length/(c[0].length+c[1].length);
         const l = jet.rnd.number(Math.max(min, 2), max, sqr);
-        let s = jet.rnd.boolean(p), r = ""
+        let s = jet.rnd.boolean(p), r = "";
         while (r.length < l) {r += jet.rnd.index(c[+(s = !s)]);}
         return r;
     },
