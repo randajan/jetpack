@@ -35,7 +35,7 @@ export default {
         for (let [i, p] of pa.entries()) {
             let blank = o[p] == null, last = i === pa.length-1;
             if (!force && blank !== last) {return false;}
-            o = o[p] = last ? val : blank ? isNaN(Number(pa[i+1])) ? {} : [] : o[p];
+            o = o[p] = last ? val : !jet.isMapable(o[p]) ? isNaN(Number(pa[i+1])) ? {} : [] : o[p];
         };
         return r;
     },
@@ -43,6 +43,11 @@ export default {
         let [j, c, e, r, l] = jet.get(["string", ["string", comma, ", "], ["string", equation], ["string", rQuote], ["string", lQuote]]);
         jet.obj.map(obj, (v,k)=>{v = jet.obj.toStr(v); j += v ? (j?c:"")+((e?(l+k+l+e):"")+(r+v+r)) : "";});
         return j;
+    },
+    merge: function(...objs) {
+        let result;
+        objs.map(obj=>jet.obj.map(obj, (v,k,p)=>result = jet.obj.set(result, p, v, true), true));
+        return result;
     },
     clone: function(obj, deep) {
         return jet.obj.map(obj, _=>_, deep);
