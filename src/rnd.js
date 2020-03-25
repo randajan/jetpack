@@ -12,13 +12,10 @@ export default {
         return arr[Math.floor(jet.rnd.number(jet.num.frame(min||0, 0, l), jet.num.frame(max||l, 0, l), sqr))];
     },
     string: function(min, max, sqr) { //HOW TO GENERATE GREAT RANDOM STRING???
-        var c = ["bcdfghjklmnpqrstvwxz", "aeiouy"], p = c[0].length/(c[0].length+c[1].length);
-        var l = jet.rnd.number(Math.max(min, 2), max, sqr), s = +jet.rnd.boolean(p), r = "";
-        var x = .5;
-        while (r.length < l) {
-            r += jet.rnd.index(c[s]); 
-            if (jet.rnd.boolean(x)) {x *= .5;} else {x = .5; s = (s+1)%2;} 
-        }
+        const c = [jet.temp.consonant, jet.temp.vowels], p = c[0].length/(c[0].length+c[1].length);
+        const l = jet.rnd.number(Math.max(min, 2), max, sqr);
+        let s = jet.rnd.boolean(p), r = ""
+        while (r.length < l) {r += jet.rnd.index(c[+(s = !s)]);}
         return r;
     },
     color: function() {

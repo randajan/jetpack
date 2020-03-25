@@ -1,7 +1,8 @@
 export default {
     types:{},
-    dimension:[{a:"x", v:"ver", s:"left", e:"right", z:"width"}, {a:"y", v:"hor", s:"top", e:"bottom", z:"height"}, {a:"z", v:"in", s:"front", e:"back", z:"depth"}],
+    dimension:[{a:"x", v:"ver", s:"left", e:"right", z:"width"}, {a:"y", v:"hor", s:"top", e:"bottom", z:"height"}, {a:"z", v:"in", s:"front", e:"back", z:"depth"}],  
     clean:{to:"aacdeeillnooorstuuuyrzAACDEEILLNOOORSTUUUYRZ", from:"áäčďéěíĺľňóôöŕšťúůüýřžÁÄČĎÉĚÍĹĽŇÓÔÖŔŠŤÚŮÜÝŘŽ"},
+    vowels: "aeiouy", consonant:"bcdfghjklmnpqrstvwxz",
     hide:{
         point:"•", cross:"×", flake:"☀", draft:"⌭", power:"⚡", star:"★", skull:"☠", card:"♠♥♦♣", notes:"♩♪♫♬♭♮♯", chess:"♔♕♖♗♘♙♚♛♜♝♞♟",
         block:"▖▗▘▙▚▛▜▝▞▟", bar:"│║ ▌▐█", iting:"☰☱☲☳☴☵☶☷", astro:"♈♉♊♋♌♍♎♏♐♑♒♓", die:"⚀⚁⚂⚃⚄⚅",
