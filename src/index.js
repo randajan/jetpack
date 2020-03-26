@@ -28,6 +28,6 @@ jet.type.define(-1, "map", Map, (...a)=>new Map(...a), _=>new Map(_));
 
 /*EXTEND STRING PROTOTYPE*/
 
-jet.obj.map(jet.str, f=>jet.obj.addProperty(String.prototype, f.name, function(...args) {return f(this, ...args);}));
+jet.obj.map(jet.str, f=>jet.obj.addProperty(String.prototype, f.name, function(...args) {return f(this, ...args);}, false, true, false));
 
 export default jet;

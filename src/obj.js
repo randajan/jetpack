@@ -1,10 +1,14 @@
 import jet from "./index";
 
 export default {
-    addProperty:function(obj, property, val, writable, enumerable) { 
-        if (!jet.isMapable(property)) {Object.defineProperty(obj, property, {value:val, writable:!!writable, enumerable:!!enumerable}); return obj;}
-        var a = jet.is("array", property);
-        jet.obj.map(property, function(f, i) {jet.obj.addProperty(obj, a ? f : i, a ? val : f, writable, enumerable);}, false, true);
+    addProperty:function(obj, property, val, writable, enumerable, overwrite) { 
+        overwrite = jet.get("boolean", overwrite, true);
+        if (jet.isMapable(property)) {
+            const a = jet.is("array", property);
+            jet.obj.map(property, (f, i)=>jet.obj.addProperty(obj, a ? f : i, a ? val : f, writable, enumerable, overwrite), false, true);
+        } else if (!obj[property] || overwrite) {
+            Object.defineProperty(obj, property, {value:val, writable:!!writable, enumerable:!!enumerable});
+        }
         return obj;
     },
     getProperty:function(obj, property) {
