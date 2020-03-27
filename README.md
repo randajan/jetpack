@@ -135,6 +135,19 @@ _Used for type function arguments, creating defaults and copy passed array/objec
   * jet.get("regexp", 1, "foo", ["bar"], {foo:"bar"}) == RegExp();
   * jet.pull([[map, {}], ["string", "foo"], ["regexp"]]) == [{}, "foo", RegExp()];
 
+### __jet.untie__
+_If type of the first value in obj is "object" or "array" it will unpack those values to overwrite initial (the obj) values and return array with those values in the initial order_
+
+* Arguments
+  * obj: _obj (argumentName:value)_ 
+* Return
+  * _array with values_
+* Example
+  * //function xyz(x,y,z) {return jet.untie({x,y,z});};
+  * xyz("a", "b", "c") === ["a", "b", "c"];
+  * xyz(["a", "b", "c"]) === ["a", "b", "c"];
+  * xyz({a:"a", b:"b" c:"c"}, "B") === ["a", "b", "c"]
+
 ### __jet.key.list / jet.key.get / jet.key.set / jet.key.rem__ _/ jet.touch_
 _Handle mapable objects (it requires defined type)_
 

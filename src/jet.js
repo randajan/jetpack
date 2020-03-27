@@ -47,6 +47,14 @@ const jet = {
     filter:function(...args) {return jet.factory(false, false, ...args);},
     get:function(...args) {return jet.factory(true, false, ...args);},
     pull:function(...args) {return jet.factory(true, true, ...args);},
+    untie:function(args) {
+        args = jet.get("object", args);
+        const keys = Object.keys(args);
+        const first = args[keys[0]];
+        if (!jet.isMapable(first)) {return Object.values(args);}
+        const isArray = jet.is("array", first);
+        return keys.map((v,k)=>jet.isFull(first[isArray?k:v]) ? first[isArray?k:v] : args[v]);
+    },
     key:{
         touch: function(op, any, key, val) {
             const t = jet.temp.types[jet.type(any)]; 
