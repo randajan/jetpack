@@ -137,9 +137,69 @@ class Lexicon {
 
 };
 
+class Quantity {
+    constructor(val, unit, dec) {
+        const _parent = (jet.is(Quantity, val) && jet.unit.validate(unit, val.unit)) ? val : null;
+        let _val;
+
+        if (dec) { this.dec = dec; }
+        jet.obj.addProperty(this, "unit", jet.unit.validate(unit), false, true);
+
+        Object.defineProperties(this, {
+            val: {
+                enumerable: true,
+                get: _ => _parent ? _parent.valueOf(this.unit) : _val,
+                set: val => {
+                    let num, unit;
+                    if (jet.is("number", val)) { num = val; }
+                    else if (jet.is(Quantity)) { num = val.val; unit = val.unit; }
+                    else {
+                        const str = jet.str.to(val);
+                        const strnum = (str.match(jet.temp.regex.num) || []).join("");
+                        unit = strnum ? str.split(strnum)[1] : "";
+                        num = Number(strnum.replace(",", "."));
+                    }
+                    if (!jet.unit.validate(this.unit, unit)) { return; }
+                    if (!_parent) { return _val = jet.unit.convert(num, unit, this.unit); }
+                    else { _parent.val = jet.unit.convert(num, unit||this.unit, _parent.unit); }
+                }
+            }
+        });
+
+        this.val = val;
+    }
+
+    convert(unit, stickThis) {
+        if (!jet.unit.validate(this.unit, unit)) { return }
+        if (!unit) {
+            const fit = [];
+            jet.obj.map(jet.temp.units[this.unit], (to, unit) => {
+                const num = jet.num.round(to(this.val), 1);
+                fit.push([unit, jet.num.length(num)]);
+            });
+            unit = jet.isEmpty(fit) ? this.unit : fit.sort((a, b) => a[1] - b[1])[0][0];
+        }
+        return new Quantity(stickThis ? this : this.valueOf(unit), unit, this.dec);
+    }
+
+    valueOf(unit, dec) { return jet.unit.convert(this.val, this.unit, unit, dec == null ? this.dec : dec); }
+    toString(unit, dec) { return this.valueOf(unit, dec) + this.unit; }
+
+    toJSON() { return this.toString(); }
+
+    static create(val, unit) {
+        return jet.is(Quantity, val) ? val.convert(unit) : new Quantity(val, unit);
+    }
+
+    static convert(num, inUnit, outUnit, dec) {
+        return Quantity.convert(num, inUnit, outUnit, dec);
+    }
+}
+
 export default {
     ArrayLike,
     Pool,
     Sort,
-    Lexicon
+    Lexicon,
+    Quantity
 }

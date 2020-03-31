@@ -1,6 +1,7 @@
 import temp from "./temp";
 import num from "./num";
 import str from "./str";
+import unit from "./unit";
 import color from "./color";
 import time from "./time";
 import obj from "./obj";
@@ -72,6 +73,7 @@ const jet = {
     temp,
     num,
     str,
+    unit,
     color,
     time,
     obj,
