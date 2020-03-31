@@ -169,21 +169,29 @@ class Quantity {
         this.val = val;
     }
 
-    convert(unit, stickThis) {
-        if (!jet.unit.validate(this.unit, unit)) { return }
-        if (!unit) {
-            const fit = [];
-            jet.obj.map(jet.temp.units[this.unit], (to, unit) => {
-                const num = jet.num.round(to(this.val), 1);
-                fit.push([unit, jet.num.length(num)]);
-            });
-            unit = jet.isEmpty(fit) ? this.unit : fit.sort((a, b) => a[1] - b[1])[0][0];
-        }
-        return new Quantity(stickThis ? this : this.valueOf(unit), unit, this.dec);
+    fit(dec) {
+        const fit = [];
+        jet.obj.map(jet.temp.units[this.unit], (to, unit) => {
+            const num = jet.num.round(to(this.val), dec == null ? this.dec : dec);
+            if (num) {fit.push([unit, jet.num.length(num)]);}
+        });
+        return jet.isEmpty(fit) ? this.unit : fit.sort((a, b) => a[1] - b[1])[0][0];
     }
 
-    valueOf(unit, dec) { return jet.unit.convert(this.val, this.unit, unit, dec == null ? this.dec : dec); }
-    toString(unit, dec) { return this.valueOf(unit, dec) + this.unit; }
+    convert(unit, dec, stickThis) {
+        if (!jet.unit.validate(this.unit, unit)) { return }
+        if (!unit) {unit = this.fit(dec);}
+        return new Quantity(stickThis ? this : this.valueOf(unit), unit, dec == null ? this.dec : dec);
+    }
+
+    valueOf(unit, dec) { 
+        return jet.unit.convert(this.val, this.unit, unit, dec == null ? this.dec : dec); 
+    }
+
+    toString(unit, dec) {
+        unit = unit || this.fit(dec); 
+        return this.valueOf(unit, dec)+(jet.unit.validate(unit, this.unit) || this.unit);
+    }
 
     toJSON() { return this.toString(); }
 

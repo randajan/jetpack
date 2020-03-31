@@ -1,11 +1,10 @@
 import jet from "../jet";
 
 jet.unit.define("s", "ms", 1000);
-jet.unit.define("m", "s", 60);
-jet.unit.define("h", "m", 60);
+jet.unit.define("M", "s", 60);
+jet.unit.define("h", "M", 60);
 jet.unit.define("d", "h", 24);
 jet.unit.define("w", "d", 7);
-jet.unit.define("M", "d", 30);
 jet.unit.define("y", "d", 365);
 
 jet.unit.define("dl", "ml", 100);
