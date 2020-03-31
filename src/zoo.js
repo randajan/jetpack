@@ -187,8 +187,8 @@ class Quantity {
 
     toJSON() { return this.toString(); }
 
-    static create(val, unit) {
-        return jet.is(Quantity, val) ? val.convert(unit) : new Quantity(val, unit);
+    static create(val, unit, dec) {
+        return jet.is(Quantity, val) ? val.convert(unit) : new Quantity(val, unit, dec);
     }
 
     static convert(num, inUnit, outUnit, dec) {
