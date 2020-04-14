@@ -67,5 +67,14 @@ export default {
         };
         
         return o;
+    },
+    fromJSON: function(json, throwErr) {
+        let out;
+        try { out = JSON.parse(json); } catch(e) { if (throwErr === true) { throw e } }
+        return jet.filter("mapable", out);
+    },
+    toJSON:function(obj, prettyPrint) {
+        const spacing = jet.get("number", prettyPrint === true ? 2 : prettyPrint);
+        return JSON.stringify(jet.filter("mapable", obj), null, spacing);
     }
 };
