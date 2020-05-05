@@ -137,9 +137,9 @@ class Lexicon {
 
 };
 
-class Quantity {
+class Amount {
     constructor(val, unit, dec) {
-        const _parent = (jet.is(Quantity, val) && jet.unit.validate(unit, val.unit)) ? val : null;
+        const _parent = (jet.is(Amount, val) && jet.unit.validate(unit, val.unit)) ? val : null;
         let _val;
 
         if (dec) { this.dec = dec; }
@@ -152,7 +152,7 @@ class Quantity {
                 set: val => {
                     let num, unit;
                     if (jet.is("number", val)) { num = val; }
-                    else if (jet.is(Quantity)) { num = val.val; unit = val.unit; }
+                    else if (jet.is(Amount)) { num = val.val; unit = val.unit; }
                     else {
                         const str = jet.str.to(val);
                         const strnum = (str.match(jet.temp.regex.num) || []).join("");
@@ -181,7 +181,7 @@ class Quantity {
     convert(unit, dec, stickThis) {
         if (!jet.unit.validate(this.unit, unit)) { return }
         if (!unit) {unit = this.fit(dec);}
-        return new Quantity(stickThis ? this : this.valueOf(unit), unit, dec == null ? this.dec : dec);
+        return new Amount(stickThis ? this : this.valueOf(unit), unit, dec == null ? this.dec : dec);
     }
 
     valueOf(unit, dec) { 
@@ -196,11 +196,11 @@ class Quantity {
     toJSON() { return this.toString(); }
 
     static create(val, unit, dec) {
-        return jet.is(Quantity, val) ? val.convert(unit) : new Quantity(val, unit, dec);
+        return jet.is(Amount, val) ? val.convert(unit) : new Amount(val, unit, dec);
     }
 
     static convert(num, inUnit, outUnit, dec) {
-        return Quantity.convert(num, inUnit, outUnit, dec);
+        return Amount.convert(num, inUnit, outUnit, dec);
     }
 }
 
@@ -209,5 +209,5 @@ export default {
     Pool,
     Sort,
     Lexicon,
-    Quantity
+    Amount
 }
