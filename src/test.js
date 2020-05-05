@@ -2,6 +2,20 @@ import jet from "./index";
 
 
 export default {
+    byteCount(obj, cap) {
+        const list = [];
+        let s, sum = new jet.Amount(0, "kB", 2);
+        cap = new jet.Amount(cap, "kB");
+        jet.obj.map(obj, (v,k,p)=>{
+            if (v != null) {
+                sum.val += s = (k.length+v.length)*2/1024;
+                list.push([p.join("."), new jet.Amount(s, "kB", 2).toString()]);
+            }
+            return v;
+        }, true);
+        return {load:(sum/cap)+"%", sum:sum.toString(), cap:cap.toString(), list:list.sort((r1, r2)=>r2[1]-r1[1])};
+    },
+
     measurePerformance: function(fces, args, repeat) {
         const rep = repeat || 100,
             ladder = [],

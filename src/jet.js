@@ -80,7 +80,7 @@ const jet = {
     arr,
     rnd,
     test,
-    zoo,
+    ...zoo,
 };
 
 export default jet;
