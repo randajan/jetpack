@@ -18,8 +18,8 @@ export default {
 
         if (boundParent[unit] || boundUnit[parent]) { throw "Relation between '" + unit + "' and '" + parent + "' units can't be redefined!!!"; }
 
-        boundParent[unit] = v => jet.num.x(v, "/", exponent);
-        boundUnit[parent] = v => jet.num.x(v, "*", exponent);
+        boundParent[unit] = v => jet.num.x(v, "/", exponent)
+        boundUnit[parent] = v => jet.num.x(v, "*", exponent)
         boundUnit[unit] = v => v;
 
         for (let k in boundParent) {

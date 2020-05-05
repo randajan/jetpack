@@ -4,7 +4,9 @@ import jet from "./index.js";
 export default {
     x: function (num1, symbol, num2) {
         const s = symbol, nums = jet.num.zoomIn(num1, num2), [n, m] = nums;
-        return s === "/" ? n/m : ((s === "+" ? n + m : s === "-" ? n - m : s === "*" ? n * m : s === "%" ? n % m : NaN) / nums.zoom);
+        if (s === "/") { return n/m; }
+        if (s === "*") { return n*m/Math.pow(nums.zoom, 2); }
+        return (s === "+" ? n + m : s === "-" ? n - m : s === "%" ? n % m : NaN) / nums.zoom;
     },
     frame: function (num, min, max) { var r = Math.min(num, jet.filter("number", max, num)); return Math.max(r, jet.filter("number", min, r)); },
     round: function (num, dec, kind) { const k = Math.pow(10, dec || 0); return Math[kind == null ? "round" : kind ? "ceil" : "floor"](num * k) / k; },

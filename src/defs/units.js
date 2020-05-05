@@ -1,8 +1,8 @@
 import jet from "../jet";
 
 jet.unit.define("s", "ms", 1000);
-jet.unit.define("M", "s", 60);
-jet.unit.define("h", "M", 60);
+jet.unit.define("m", "s", 60);
+jet.unit.define("h", "m", 60);
 jet.unit.define("d", "h", 24);
 jet.unit.define("w", "d", 7);
 jet.unit.define("y", "d", 365);
@@ -26,5 +26,5 @@ jet.unit.define("gb", "mb", 1000);
 jet.unit.define("tb", "gb", 1000);
 
 jet.unit.define("cm", "mm", 10);
-jet.unit.define("m", "cm", 100);
-jet.unit.define("km", "m", 1000);
+jet.unit.define("M", "cm", 100);
+jet.unit.define("km", "M", 1000);
