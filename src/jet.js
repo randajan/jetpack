@@ -54,7 +54,7 @@ const jet = {
         const first = args[keys[0]];
         if (!jet.isMapable(first)) {return Object.values(args);}
         const isArray = jet.is("array", first);
-        return keys.map((v,k)=>jet.isFull(first[isArray?k:v]) ? first[isArray?k:v] : args[v]);
+        return keys.map((v,k)=>jet.isFull(first[isArray?k:v]) ? first[isArray?k:v] : k > 0 ? args[v] : undefined);
     },
     key:{
         touch: function(op, any, key, val) {
