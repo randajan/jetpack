@@ -22,6 +22,7 @@ jet.type.define(-1, "number", Number, Number);
 jet.type.define(-1, "symbol", Symbol, Symbol);
 jet.type.define(-1, "regexp", RegExp, RegExp, _=>RegExp(_.source));
 jet.type.define(-1, "date", Date, Date, Date);
+jet.type.define(-1, "promise", Promise, _=>new Promise(jet.get("function", _, _=>_())));
 jet.type.define(-1, "element", Element);
 
 jet.type.define(-1, "set", Set, (...a)=>new Set(...a), _=>new Set(_), _=>_.entries(), (_,k)=>_.has(k)?k:undefined, (_,k,v)=>_.delete(k)?_.add(v):undefined, (_,k)=>_.delete(k));
