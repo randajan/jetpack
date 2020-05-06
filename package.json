@@ -1,6 +1,6 @@
 {
   "name": "@randajan/jetpack",
-  "version": "3.4.2",
+  "version": "3.4.3",
   "description": "Collection of devtools",
   "license": "MIT",
   "repository": "randajan/jetpack",
@@ -20,9 +20,7 @@
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build"
   },
-  "peerDependencies": {
-
-  },
+  "peerDependencies": {},
   "devDependencies": {
     "@svgr/rollup": "^2.4.1",
     "babel-core": "^6.26.3",
