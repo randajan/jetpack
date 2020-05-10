@@ -23,7 +23,7 @@ class Pool extends ArrayLike {
         if (flat) { jet.obj.addProperty(this, { flat }); }
     }
 
-    classify(val) { return (!this.filter || jet.is(this.filter, val)) ? this.length : -1; }
+    classify(item) {return (!this.filter || jet.is(this.filter, item)) ? this.length : -1; }
 
     add(...items) {
         let c = 0;
@@ -48,14 +48,14 @@ class Pool extends ArrayLike {
         return c;
     }
 
-    pass(pool, val, dir) {
-        let c = pool, f = dir ? c : this, t = dir ? this : c, r = f.rem(val);
-        if (t.add(val) >= 0) { return true; } else if (r) { f.add(val); }
+    pass(pool, item, dir) {
+        let c = pool, f = dir ? c : this, t = dir ? this : c, r = f.rem(item);
+        if (t.add(item) >= 0) { return true; } else if (r) { f.add(item); }
         return false;
     }
 
-    passTo(val, pool) { return this.pass(val, pool, false); }
-    passFrom(val, pool) { return this.pass(val, pool, true); }
+    passTo(item, pool) { return this.pass(item, pool, false); }
+    passFrom(item, pool) { return this.pass(item, pool, true); }
 }
 
 class RunPool extends Pool {
@@ -68,6 +68,22 @@ class RunPool extends Pool {
         return jet.run(Array.from(this), ...this.with, ...args);
     }
 
+    classify(item) {
+        const index = super.classify(item);
+        if (this.pending && index >= 0 && !this.has(item)) {
+            this.pending.push(item);
+        }
+        return index;
+    }
+
+    addAndRun(...items) {
+        const pending = [];
+        jet.obj.addProperty(this, "pending", pending, true);
+        this.add(...items);
+        delete this.pending;
+        return jet.run(pending, ...this.with);
+    }
+
 }
 
 class Sort extends Pool {
@@ -77,12 +93,12 @@ class Sort extends Pool {
         this.onclassify.add(onclassify);
     }
 
-    classify(val) {
+    classify(item) {
         let i = 0, k = 0, l = this.length, c = this.onclassify;
-        if (super.classify(val) < 0) { return -1; } else if (!c.length) { return l; }
+        if (super.classify(item) < 0) { return -1; } else if (!c.length) { return l; }
         for (i = 0; i < l; i++) {
-            if (val === this[i]) { k = 1; continue; }
-            let b = false; for (let j in c) { b = c[j](val, this[i]); if (b != null) { break; } }
+            if (item === this[i]) { k = 1; continue; }
+            let b = false; for (let j in c) { b = c[j](item, this[i]); if (b != null) { break; } }
             if (b) { break; }
         };
         return i - k;

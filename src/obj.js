@@ -7,7 +7,7 @@ export default {
             const a = jet.is("array", property);
             jet.obj.map(property, (f, i)=>jet.obj.addProperty(obj, a ? f : i, a ? val : f, writable, enumerable, overwrite), false, true);
         } else if (!obj[property] || overwrite) {
-            Object.defineProperty(obj, property, {value:val, writable:!!writable, enumerable:!!enumerable});
+            Object.defineProperty(obj, property, {value:val, writable:!!writable, configurable:!!writable, enumerable:!!enumerable});
         }
         return obj;
     },
