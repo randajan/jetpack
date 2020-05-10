@@ -54,6 +54,18 @@ class Pool extends ArrayLike {
     passFrom(val, pool) { return this.pass(val, pool, true); }
 }
 
+class RunPool extends Pool {
+    constructor(...runwith) {
+        super("function", true);
+        jet.obj.addProperty(this, "with", runwith);
+    }
+
+    run(...args) {
+        return jet.run(this, ...this.with, ...args);
+    }
+
+}
+
 class Sort extends Pool {
     constructor(filter, flat, onclassify) {
         super(filter, flat)
@@ -207,6 +219,7 @@ class Amount {
 export default {
     ArrayLike,
     Pool,
+    RunPool,
     Sort,
     Lexicon,
     Amount
