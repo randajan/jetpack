@@ -30,7 +30,7 @@ export default {
     indexOf: function(obj, val) {var o = jet.get("object", obj); if (o.indexOf) {return o.indexOf(val);} for (var i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
         let [o, pa] = jet.get([["mapable", obj], ["array", path, jet.get("string", path).split(".")]]);
-        for (let p of pa) {if (jet.isEmpty(o) || !jet.isMapable(o)) {return def;}; o = o[p];}
+        for (let p of pa) {if (o == null || !jet.isMapable(o)) {return def;}; o = o[p];}
         return o;
     },
     set: function(obj, path, val, force) {
