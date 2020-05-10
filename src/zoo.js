@@ -5,6 +5,10 @@ class ArrayLike {
 
     splice() { }
 
+    has(val) {
+        return this.indexOf(val) >= 0;
+    }
+
     indexOf(val) {
         for (let i in this) { if (this[i] === val) { return Number(i); } }
         return -1;
@@ -61,7 +65,7 @@ class RunPool extends Pool {
     }
 
     run(...args) {
-        return jet.run(this, ...this.with, ...args);
+        return jet.run(Array.from(this), ...this.with, ...args);
     }
 
 }
