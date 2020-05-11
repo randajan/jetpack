@@ -9,6 +9,8 @@ import arr from "./arr";
 import rnd from "./rnd";
 import test from "./test";
 import zoo from "./zoo";
+import web from "./web";
+import event from "./event";
 
 const jet = {
 
@@ -80,7 +82,9 @@ const jet = {
     arr,
     rnd,
     test,
-    ...zoo,
+    web,
+    event,
+    ...zoo
 };
 
 export default jet;
