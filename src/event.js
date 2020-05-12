@@ -17,6 +17,7 @@ export default {
     deaf(ele, type, handler) { return jet.event.listen(false, ele, type, handler); },
 
     listenShift(ele, onShift) {
+        const evmap = {"mousedown":"start", "mouseup":"stop", "mousemove":"shift"}
         let bound;
         onShift = jet.get("function", onShift);
 
@@ -35,7 +36,7 @@ export default {
                 bound.y = (ev.clientY - parent.top + bound.pinY) / parent.height;
             }
 
-            if (onShift(ev, bound, ev.type === "mousemove") === false) { return; } 
+            if (onShift(ev, bound, evmap[ev.type]) === false) { return; } 
             ele.style.left = (bound.x*100)+"%";
             ele.style.top = (bound.y*100)+"%";
             bound.lastX = bound.x;
