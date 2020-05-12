@@ -9,51 +9,54 @@ export default {
     stop(ev) { ev.preventDefault(); },
     listen(bol, ele, type, handler) {
         [type, handler, bol] = jet.get([["string", type, "click"], ["function", handler], ["boolean", bol, true]]);
-        bol = handler ? bol : !bol; 
-        (ele || D)[(bol ? "add" : "remove")+"EventListener"](type, handler||jet.event.stop);
-        return _=>jet.event.deaf(ele, type, handler);
+        const b = handler ? bol : !bol; 
+        (ele || D)[(b ? "add" : "remove")+"EventListener"](type, handler||jet.event.stop);
+        return _=>jet.event.listen(!bol, ele, type, handler);
     },
     hear(ele, type, handler) { return jet.event.listen(true, ele, type, handler); },
     deaf(ele, type, handler) { return jet.event.listen(false, ele, type, handler); },
 
-    listenShift(ele, handler) {
+    listenShift(ele, onShift) {
         let bound;
-        handler = jet.filter("function", handler, (state, left, top)=>{
-            ele.style.top = (top*100)+"%"; 
-            ele.style.left = (left*100)+"%"; 
-        });
+        onShift = jet.get("function", onShift);
 
         function listen(bol) {
-            jet.event.listen(bol, D, "mousemove", move); 
+            jet.event.listen(bol, D, "mousemove", shift); 
             jet.event.listen(bol, D, "mouseup", stop);
         }
 
-        function step(ev, state, left, top) {
-            if (handler(state, left, top, ev) !== false) { jet.event.stop(ev);}
+        function shift(ev) {
+            const parent = jet.web.getParent(ele).getBoundingClientRect();
+
+            if (parent && parent.width && parent.height) {
+                bound.parentWidth = parent.width;
+                bound.parentHeight = parent.height;
+                bound.x = (ev.clientX - parent.left + bound.pinX) / parent.width;
+                bound.y = (ev.clientY - parent.top + bound.pinY) / parent.height;
+            }
+
+            if (onShift(ev, bound, ev.type === "mousemove") === false) { return; } 
+            ele.style.left = (bound.x*100)+"%";
+            ele.style.top = (bound.y*100)+"%";
+            bound.lastX = bound.x;
+            bound.lastY = bound.y;
+            jet.event.stop(ev);
         };
 
         function stop(ev) {
             listen(false);
-            step(ev, "stop");
+            shift(ev);
         }
 
         function start(ev) {
-            bound = jet.web.getBound(ele); 
-            bound.x = bound.width ? (bound.width/2 - ev.offsetX) : 0; 
-            bound.y = bound.height ? (bound.height/2 - ev.offsetY) : 0;
+            if (ev.target !== ele) { return }
+            bound = ele.getBoundingClientRect();
+            bound.pinX = bound.width ? (bound.width/2 - ev.offsetX) : 0; 
+            bound.pinY = bound.height ? (bound.height/2 - ev.offsetY) : 0;
             listen(true);
-            step(ev, "start");
+            shift(ev);
         }
-
-        function move(ev) {
-            const p = jet.web.getBound(jet.web.getParent(ele)), c = jet.web.getScroll();
-            if (p.width && p.height) {
-                const left = (ev.clientX + c.left - p.left + bound.x) / p.width;
-                const top = (ev.clientY + c.top - p.top + bound.y) / p.height;
-                step(ev, "move", left, top);
-            }
-        };
-
+        
         return jet.event.hear(ele, "mousedown", start);
     }
 };
