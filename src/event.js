@@ -6,7 +6,11 @@ const B = D.body;
 const H = D.documentElement;
 
 export default {
-    stop(ev) { ev.preventDefault(); },
+    stop(ev, bubbling) {
+        if (!ev) { return; }
+        if (ev.preventDefault) {ev.preventDefault();}
+        if (ev.stopBubbling && bubbling) {ev.stopBubbling();}
+    },
     listen(bol, ele, type, handler) {
         [type, handler, bol] = jet.get([["string", type, "click"], ["function", handler], ["boolean", bol, true]]);
         const b = handler ? bol : !bol; 
@@ -16,48 +20,44 @@ export default {
     hear(ele, type, handler) { return jet.event.listen(true, ele, type, handler); },
     deaf(ele, type, handler) { return jet.event.listen(false, ele, type, handler); },
 
-    listenShift(ele, onShift) {
+    listenShift(ele, onShift, bound) {
+        [ele, onShift, bound] = jet.get([["element", ele], ["function", onShift], ["object", bound]]);
         const evmap = {"mousedown":"start", "mouseup":"stop", "mousemove":"shift"}
-        let bound;
-        onShift = jet.get("function", onShift);
+        let parent;
+        
+        function listen(bol) { ["mousemove", "mouseup"].map(ev=>jet.event.listen(bol, D, ev, shift)); }
+        function pick(x, y) { bound.pickX = x || 0; bound.pickY = y || 0; }
+        function move(x, y) { bound.x = x || 0; bound.y = y || 0; }
+        function dimension(width, height) { bound.parentWidth = width || 0; bound.parentHeight = height || 0; }
 
-        function listen(bol) {
-            jet.event.listen(bol, D, "mousemove", shift); 
-            jet.event.listen(bol, D, "mouseup", stop);
+        function start(ev) {
+            parent = jet.web.getParent(ele);
+            if (!parent || (ev && ev.target !== ele)) { return; }
+            bound = {...bound, ...ele.getBoundingClientRect()};
+            if (ev) { pick(bound.width/2 - ev.offsetX, bound.height/2 - ev.offsetY); }
+            shift(ev);
         }
 
         function shift(ev) {
-            const parent = jet.web.getParent(ele).getBoundingClientRect();
+            const pb = parent.getBoundingClientRect();
+            const state = ev ? evmap[ev.type] : "stop";
 
-            if (parent && parent.width && parent.height) {
-                bound.parentWidth = parent.width;
-                bound.parentHeight = parent.height;
-                bound.x = (ev.clientX - parent.left + bound.pinX) / parent.width;
-                bound.y = (ev.clientY - parent.top + bound.pinY) / parent.height;
-            }
+            dimension(pb.width, pb.height);
+            if (ev) { move((ev.clientX - pb.left + bound.pickX) / pb.width, (ev.clientY - pb.top + bound.pickY) / pb.height); }
 
-            if (onShift(ev, bound, evmap[ev.type]) === false) { return; } 
+            if (state !== "shift") { listen(state === "start"); }
+            if (onShift(ev, bound, state) === false) { return; } 
+
             ele.style.left = (bound.x*100)+"%";
             ele.style.top = (bound.y*100)+"%";
+
             bound.lastX = bound.x;
             bound.lastY = bound.y;
+
             jet.event.stop(ev);
         };
-
-        function stop(ev) {
-            listen(false);
-            shift(ev);
-        }
-
-        function start(ev) {
-            if (ev.target !== ele) { return }
-            bound = ele.getBoundingClientRect();
-            bound.pinX = bound.width ? (bound.width/2 - ev.offsetX) : 0; 
-            bound.pinY = bound.height ? (bound.height/2 - ev.offsetY) : 0;
-            listen(true);
-            shift(ev);
-        }
         
+        if (bound) { start(); }
         return jet.event.hear(ele, "mousedown", start);
     }
 };
