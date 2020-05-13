@@ -42,7 +42,7 @@ export default {
         for (let [i, p] of pa.entries()) {
             let blank = obj[p] == null, last = i === pa.length-1;
             if (!force && blank !== last) {return false;}
-            obj = obj[p] = last ? val : getForSet(obj[p], pa[i+1]);
+            obj = obj[p] = last ? val : jet.obj.getForSet(obj[p], pa[i+1]);
         };
         return r;
     },
