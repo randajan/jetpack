@@ -29,22 +29,25 @@ export default {
     toStr: function(any) {return jet.isFull(any) ? String(any) : "";},
     indexOf: function(obj, val) {var o = jet.get("object", obj); if (o.indexOf) {return o.indexOf(val);} for (var i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
-        let [o, pa] = jet.get([["mapable", obj], ["array", path, jet.get("string", path).split(".")]]);
-        for (let p of pa) {if (o == null || !jet.isMapable(o)) {return def;}; o = o[p];}
-        return o;
+        const pa = jet.get("array", path, jet.get("string", path).split("."));
+        for (let p of pa) {if (obj == null || !jet.is("object", obj, true)) {return def;}; obj = obj[p];}
+        return obj;
+    },
+    getForSet(obj, key) {
+        return jet.is("object", obj, true) ? obj : isNaN(Number(key)) ? {} : [];
     },
     set: function(obj, path, val, force) {
         const pa = jet.get("array", path, jet.get("string", path).split("."));
-        let o = jet.get("mapable", obj, isNaN(Number(pa[0])) ? {} : []), r = o;
+        const r = obj = jet.obj.getForSet(obj, pa[0]);
         for (let [i, p] of pa.entries()) {
-            let blank = o[p] == null, last = i === pa.length-1;
+            let blank = obj[p] == null, last = i === pa.length-1;
             if (!force && blank !== last) {return false;}
-            o = o[p] = last ? val : !jet.isMapable(o[p]) ? isNaN(Number(pa[i+1])) ? {} : [] : o[p];
+            obj = obj[p] = last ? val : getForSet(obj[p], pa[i+1]);
         };
         return r;
     },
     join: function(obj, comma, equation, lQuote, rQuote) {
-        let [j, c, e, r, l] = jet.get(["string", ["string", comma, ", "], ["string", equation], ["string", rQuote], ["string", lQuote]]);
+        let [j, c, e, r, l] = jet.get(["string", ["string", comma, ","], ["string", equation], ["string", rQuote], ["string", lQuote]]);
         jet.obj.map(obj, (v,k)=>{v = jet.obj.toStr(v); j += v ? (j?c:"")+((e?(l+k+l+e):"")+(r+v+r)) : "";});
         return j;
     },
