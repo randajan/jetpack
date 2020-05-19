@@ -15,7 +15,7 @@ import event from "./event";
 const jet = {
 
     type:function(any, all) {
-        if (any == null) {return;}
+        if (any == null) { return all ? [] : undefined; }
         let types = temp.types, td = typeof any, r = [types[td]||{priority:-3, name:td}];
         for (let n in types) {let t = types[n]; if (n !== td && t.body && (any instanceof t.body)) {r.push(t);}}
         r = r.sort((a,b)=>b.priority-a.priority).map(_=>_.name);
