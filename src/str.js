@@ -3,7 +3,9 @@ import jet from "./index";
 
 
 export default {
-    to: function (str, ...args) { return str != null ? String(jet.is("function", str) ? str(...args) : str) : ""; },
+    to: function (str, ...args) {
+        return jet.is("function", str) ? jet.str.to(str(...args), ...args) : str != null ? String(str) : "";
+    },
     toNum: function (str, strict) {
         if (jet.is("number", str)) {return str;}
         str = jet.str.to(str);
