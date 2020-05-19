@@ -4,7 +4,11 @@ import jet from "./index";
 
 export default {
     to: function (str, ...args) {
-        return jet.is("function", str) ? jet.str.to(str(...args), ...args) : str != null ? String(str) : "";
+        const type = jet.type(str);
+        return str == null ? "" :
+            type === "function" ? jet.str.to(str(...args), ...args) :
+            type === "array" ? jet.arr.joins(str, ...args) :
+            String(str);
     },
     toNum: function (str, strict) {
         if (jet.is("number", str)) {return str;}
