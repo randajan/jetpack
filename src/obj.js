@@ -56,6 +56,11 @@ export default {
         objs.map(obj=>jet.obj.map(obj, (v,k,p)=>result = jet.obj.set(result, p, v, true), true));
         return result;
     },
+    compare: function(obj, mutant, deep, full) {
+        const list = [];
+        const values = jet.obj.map(mutant, (v, k, p)=>{ if (v !== jet.obj.get(obj, p)) { list.push(p.join(".")); return v;}}, deep);
+        return full ? values : list;
+    },
     clone: function(obj, deep) {
         return jet.obj.map(obj, _=>_, deep);
     },
