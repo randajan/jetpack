@@ -57,9 +57,12 @@ export default {
         return result;
     },
     compare: function(obj, mutant, deep, full) {
-        const list = [];
-        const values = jet.obj.map(mutant, (v, k, p)=>{ if (v !== jet.obj.get(obj, p)) { list.push(p.join(".")); return v;}}, deep);
-        return full ? values : list;
+        const list = full?{}:[];
+        jet.obj.map(mutant, (v, k, p)=>{
+            if (v === jet.obj.get(obj, p)) { return }
+            if (full) { jet.obj.set(list, p, v, true); } else { list.push(p.join(".")); }
+        }, deep);
+        return list;
     },
     clone: function(obj, deep) {
         return jet.obj.map(obj, _=>_, deep);
