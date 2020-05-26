@@ -27,4 +27,9 @@ export default {
         return (f ? (jet.num.frame(v, n, m)) : v); //frame
     },
     toHex: function (num) { var r = Number(Math.round(num)).toString(16); return r.length === 1 ? "0" + r : r; },
+    toLetter: function(num, letters) {
+        letters = jet.get("string", letters) || "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const len = letters.length;
+        return (num >= len ? jet.num.toLetter(Math.floor(num / len) -1) : '') + letters[num % len];
+    }
 };
