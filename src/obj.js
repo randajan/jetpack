@@ -19,7 +19,7 @@ export default {
     },
     indexOf: function(obj, val) {var o = jet.get("object", obj); if (o.indexOf) {return o.indexOf(val);} for (var i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
-        const pa = jet.get("array", path, jet.get("string", path).split("."));
+        const pa = jet.filter("array", path) || jet.str.to(path).split(".");
         for (let p of pa) {if (obj == null || !jet.is("object", obj, true)) {return def;}; obj = obj[p];}
         return obj;
     },
@@ -27,7 +27,7 @@ export default {
         return jet.is("object", obj, true) ? obj : isNaN(Number(key)) ? {} : [];
     },
     set: function(obj, path, val, force) {
-        const pa = jet.get("array", path, jet.get("string", path).split("."));
+        const pa = jet.filter("array", path) || jet.str.to(path).split(".");
         const r = obj = jet.obj.getForSet(obj, pa[0]);
         for (let [i, p] of pa.entries()) {
             let blank = obj[p] == null, last = i === pa.length-1;

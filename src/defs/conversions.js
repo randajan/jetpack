@@ -21,7 +21,7 @@ jet.to.define("string", {
 
 jet.to.define("number", {
     function:num=>_=>num,
-    boolean:num=>!!num,
+    boolean:num=>!!num
 });
 
 jet.to.define("object", {
@@ -37,8 +37,8 @@ jet.to.define("array", {
     function:arr=>_=>arr,
     boolean:arr=>jet.isFull(arr),
     number:arr=>arr.length,
-    string:arr=>arr.joins(),
-    object:arr=>Object.assign({}, x)
+    string:(arr, sep)=>arr.joins(sep),
+    object:arr=>Object.assign({}, arr)
 });
 
 jet.to.define("set", {
@@ -47,7 +47,7 @@ jet.to.define("set", {
     number:set=>Array.from(set).length,
     array:set=>Array.from(set),
     string:set=>Array.from(set).joins(),
-    object:set=>jet.obj.merge(x)
+    object:set=>jet.obj.merge(set)
 });
 
 jet.to.define("function", fce=>fce());
