@@ -2,6 +2,17 @@ import jet from "./index";
 
 
 export default {
+    to:function(any) { return jet.to("array", any); },
+    wrap:function(any) {
+        if (any == null) {return [];}
+        if (jet.is("array", any)) {return any;}
+        if (jet.is("object", any)) {return Object.values(any);}
+        if (jet.is("set", any)) {return Array.from(any);}
+        if (!jet.isMapable(any)) {return [any];}
+        const result = []; 
+        jet.obj.map(any, v=>a.push(v));
+        return result;
+    },
     swap: function(arr, to, from) {//swap position of two items in array
         arr = jet.get("array", arr); 
         arr[to] = arr.splice(from, 1, arr[to])[0]; 
@@ -22,5 +33,4 @@ export default {
     joins: function(...args) {
         return jet.obj.join(...args);
     }
-
 };

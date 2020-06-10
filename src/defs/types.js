@@ -8,7 +8,7 @@ jet.type.define = function(priority, name, body, create, copy, map, get, set, re
         set = set || ((_, k, v)=>_[k] = v);
         rem = rem || ((_, k)=>delete _[k]);
     }
-    return !!(types[name] = {priority, name, body, create, copy, map, get, set, rem});
+    return !!(types[name] = {priority, name, body, create, copy, map, get, set, rem, conv:{}});
 };
 
 jet.type.define(-3, "mapable", null, (...a)=>new Array(...a), _=>jet.copy(_)); //map is hardcoded special type
@@ -17,7 +17,7 @@ jet.type.define(-2, "object", Object, (...a)=>new Object(...a), _=>Object.define
 jet.type.define(-2, "function", Function, (...a)=>new Function(...a), _=>Object.defineProperties(({[_.name]:(...a)=>_(...a)})[_.name], Object.getOwnPropertyDescriptors(_)));
 jet.type.define(-1, "array", Array, (...a)=>new Array(...a), _=>Array.from(_), _=>_.entries());
 jet.type.define(-1, "boolean", Boolean, Boolean);
-jet.type.define(-1, "string", String, String);
+jet.type.define(-1, "string", String, any=>any == null ? "" : String(any));
 jet.type.define(-1, "number", Number, Number);
 jet.type.define(-1, "symbol", Symbol, Symbol);
 jet.type.define(-1, "regexp", RegExp, RegExp, _=>RegExp(_.source));

@@ -21,13 +21,22 @@ const jet = {
         r = r.sort((a,b)=>b.priority-a.priority).map(_=>_.name);
         return all ? r : r[0];
     },
-    isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.map);},
-    isEmpty:function(any) {
-        const a = typeof any;
-        if (!jet.isMapable(any)) {return a !== "boolean" && any !== 0 && !any;}
-        for (let i in any) {return false;} return true;
+    to:function(type, any) {
+        const typeFrom = jet.type(any), from = jet.temp.types[typeFrom];
+        if (type === typeFrom) { return any; }
+        if (!from) { return jet.create(type); }
+        const exe = from.conv[type] || from.conv["*"]; 
+        return exe ? jet.to(type, exe(any)) : jet.create(type, any);
     },
-    isFull:function(any) {return !jet.isEmpty(any);},
+    isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.map);},
+    isFull:function(any) {
+        const type = jet.type(any);
+        if (type === "array") { return !!any.length; }
+        const map = jet.key.map(any);
+        if (map) { for (let i of map) {return true;} return false; }
+        return type === "boolean" || any === 0 || !!any;
+    },
+    isEmpty:function(any) {return !jet.isFull(any);},
     is:function(type, any, inclusive) {
         const t = typeof type;
         if (t === "function" || t === "object") {return any instanceof type;} //is instance comparing

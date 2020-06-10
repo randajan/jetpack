@@ -3,18 +3,7 @@ import jet from "./index";
 
 
 export default {
-    to: function (str, ...args) {
-        const type = jet.type(str);
-        return str == null ? "" :
-            type === "function" ? jet.str.to(str(...args), ...args) :
-            type === "array" ? jet.arr.joins(str, ...args) :
-            String(str);
-    },
-    toNum: function (str, strict) {
-        if (jet.is("number", str)) {return str;}
-        str = jet.str.to(str);
-        return Number((strict ? str : (str.match(jet.temp.regex.num) || []).join("")).replace(",", "."));
-    },
+    to:function(any) { return jet.to("string", any); },
     lower: function (str) { return jet.str.to(str).toLowerCase() },
     upper: function (str) { return jet.str.to(str).toUpperCase() },
     capitalize: function (str) { str = jet.str.to(str); return str.charAt(0).upper() + str.slice(1); }, //first letter upcase,

@@ -2,6 +2,7 @@ import jet from "./index.js";
 
 
 export default {
+    to:function(any) { return jet.to("number", any); },
     x: function (num1, symbol, num2) {
         const s = symbol, nums = jet.num.zoomIn(num1, num2), [n, m] = nums;
         if (s === "/") { return n/m; }

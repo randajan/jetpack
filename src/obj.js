@@ -1,6 +1,7 @@
 import jet from "./index";
 
 export default {
+    to:function(any) { return jet.to("object", any); },
     addProperty:function(obj, property, val, writable, enumerable, overwrite) { 
         overwrite = jet.get("boolean", overwrite, true);
         if (jet.isMapable(property)) {
@@ -16,17 +17,6 @@ export default {
         if (!jet.isMapable(property)) {return obj[property];}
         return jet.obj.map(property, k=>[k, obj[k]]);
     },
-    toArray:function(any) {
-        if (any == null) {return [];}
-        if (jet.is("array", any)) {return any;}
-        if (jet.is("object", any)) {return Object.values(any);}
-        if (jet.is("set", any)) {return Array.from(any);}
-        if (!jet.isMapable(any)) {return [any];}
-        const result = []; 
-        jet.obj.map(any, v=>a.push(v));
-        return result;
-    },
-    toStr: function(any) {return jet.isFull(any) ? String(any) : "";},
     indexOf: function(obj, val) {var o = jet.get("object", obj); if (o.indexOf) {return o.indexOf(val);} for (var i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
         const pa = jet.get("array", path, jet.get("string", path).split("."));
@@ -48,7 +38,7 @@ export default {
     },
     join: function(obj, comma, equation, lQuote, rQuote) {
         let [j, c, e, r, l] = jet.get(["string", ["string", comma, ","], ["string", equation], ["string", rQuote], ["string", lQuote]]);
-        jet.obj.map(obj, (v,k)=>{v = jet.obj.toStr(v); j += v ? (j?c:"")+((e?(l+k+l+e):"")+(r+v+r)) : "";});
+        jet.obj.map(obj, (v,k)=>{v = jet.str.to(v); j += v ? (j?c:"")+((e?(l+k+l+e):"")+(r+v+r)) : "";});
         return j;
     },
     merge: function(...objs) {

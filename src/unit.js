@@ -6,7 +6,7 @@ export default {
         return parents && (!parent || parents[parent]) ? unit : "";
     },
     convert: function (num, inUnit, outUnit, dec) {
-        num = jet.str.toNum(num);
+        num = jet.num.to(num);
         num = (inUnit && outUnit && jet.unit.validate(inUnit, outUnit)) ? jet.temp.units[inUnit][outUnit](num) : num;
         return dec ? jet.num.round(num, dec) : num;
     },
