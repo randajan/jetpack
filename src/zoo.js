@@ -48,6 +48,10 @@ class Pool extends ArrayLike {
         return c;
     }
 
+    flush() {
+        for (let i=this.length-1; i>=0; i--) { delete this[i]; this.length --;  }
+    }
+
     pass(pool, item, dir) {
         let c = pool, f = dir ? c : this, t = dir ? this : c, r = f.rem(item);
         if (t.add(item) >= 0) { return true; } else if (r) { f.add(item); }
