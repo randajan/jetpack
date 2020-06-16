@@ -50,5 +50,5 @@ jet.to.define("set", {
     object:set=>jet.obj.merge(set)
 });
 
-jet.to.define("function", fce=>fce());
+jet.to.define("function", (fce, ...args)=>fce(...args));
 

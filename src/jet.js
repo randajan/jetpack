@@ -21,12 +21,12 @@ const jet = {
         r = r.sort((a,b)=>b.priority-a.priority).map(_=>_.name);
         return all ? r : r[0];
     },
-    to:function(type, any) {
+    to:function(type, any, ...args) {
         const typeFrom = jet.type(any), from = jet.temp.types[typeFrom];
         if (type === typeFrom) { return any; }
         if (!from) { return jet.create(type); }
         const exe = from.conv[type] || from.conv["*"]; 
-        return exe ? jet.to(type, exe(any)) : jet.create(type, any);
+        return exe ? jet.to(type, exe(any, ...args), ...args) : jet.create(type, any);
     },
     isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.map);},
     isFull:function(any) {
