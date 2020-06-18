@@ -47,12 +47,13 @@ export default {
         return result;
     },
     compare: function(obj, mutant, deep, full) {
-        const list = full?{}:[];
-        jet.obj.map(mutant, (v, k, p)=>{
-            if (v === jet.obj.get(obj, p)) { return }
-            if (full) { jet.obj.set(list, p, v, true); } else { list.push(p.join(".")); }
+        const list = new Set();
+        const map = jet.obj.map(mutant, (v, k, p)=>{
+            if (v === jet.obj.get(obj, p)) { return; }
+            if (!full) { let cng = ""; for (let q of p) { list.add(cng += (cng ? "." : "")+q); } }
+            return v;
         }, deep);
-        return list;
+        return full ? map : Array.from(list);
     },
     clone: function(obj, deep) {
         return jet.obj.map(obj, _=>_, deep);
