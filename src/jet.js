@@ -46,7 +46,7 @@ const jet = {
         return inclusive ? jet.type(any, true).includes(type) : type === jet.type(any);
     },
     create:function(type, ...args) {const t = jet.temp.types[type]; return (t && t.create) ? t.create(...args) : null;},
-    copy:function(any) {const t = temp.types[jet.type(any)]; return (t && t.copy) ? t.copy(any) : any},
+    copy:function(any, ...args) {const t = jet.temp.types[jet.type(any)]; return (t && t.copy) ? t.copy(any, ...args) : any},
     factory:function(create, copy, type, ...args) {
         const map = jet.key.map(type);
         if (map) {
@@ -79,7 +79,7 @@ const jet = {
     },
     run:function(any, ...args) {
         if (jet.is("function", any)) {return any(...args);}
-        return jet.obj.map(any, f=>jet.is("function", f) ? f(...args) : undefined, true);
+        return jet.obj.map(any, f=>jet.run(f, ...args));
     },
     temp,
     num,
