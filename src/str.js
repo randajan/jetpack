@@ -3,7 +3,7 @@ import jet from "./index";
 
 
 export default {
-    to:function(any) { return jet.to("string", any); },
+    to:function(...args) { return jet.to("string", ...args); },
     lower: function (str) { return jet.str.to(str).toLowerCase() },
     upper: function (str) { return jet.str.to(str).toUpperCase() },
     capitalize: function (str) { str = jet.str.to(str); return str.charAt(0).upper() + str.slice(1); }, //first letter upcase,

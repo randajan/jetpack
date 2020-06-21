@@ -147,7 +147,7 @@ class Lexicon {
     static createPattern(...words) {
         const pattern = {};
 
-        jet.obj.map(...words, word=>{
+        jet.obj.map(words, word=>{
             if (!jet.is("string", word)) {return;}
             let lChar, Char, l = word.length;
             for (let k = -1; k <= l; k++) {
@@ -159,7 +159,7 @@ class Lexicon {
         }, true);
 
         //finalize rates
-        return jet.obj.map(pattern, (v,k,p)=>{
+        return jet.obj.map(pattern, v=>{
             let c = 0; 
             jet.obj.map(v, v=>c+=v);
             v = jet.obj.map(v, v=>v/c);

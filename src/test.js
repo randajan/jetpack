@@ -6,10 +6,10 @@ export default {
         const list = [];
         let s, sum = new jet.Amount(0, "kB", 2);
         cap = new jet.Amount(cap, "kB");
-        jet.obj.map(obj, (v,k,p)=>{
+        jet.obj.map(obj, (v,p)=>{
             if (v != null) {
                 sum.val += s = (k.length+v.length)*2/1024;
-                list.push([p.join("."), new jet.Amount(s, "kB", 2).toString()]);
+                list.push([p, new jet.Amount(s, "kB", 2).toString()]);
             }
             return v;
         }, true);

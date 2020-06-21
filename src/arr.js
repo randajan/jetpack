@@ -2,7 +2,7 @@ import jet from "./index";
 
 
 export default {
-    to:function(any) { return jet.to("array", any); },
+    to:function(...args) { return jet.to("array", ...args); },
     wrap:function(any) {
         if (any == null) {return [];}
         if (jet.is("array", any)) {return any;}
