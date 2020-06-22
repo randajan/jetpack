@@ -66,7 +66,7 @@ export default {
     },
     audit:function(...objs) {
         const audit = new Set();
-        objs.map(obj=>jet.obj.map(obj, (v,p)=>audt.add(p), (v,p)=>audit.add(p)));
+        objs.map(obj=>jet.obj.map(obj, (v,p)=>audit.add(p), (v,p)=>audit.add(p)));
         return Array.from(audit).sort((a,b)=>b.localeCompare(a));
     },
     reduce:function(...objs) {
