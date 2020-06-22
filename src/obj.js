@@ -59,10 +59,15 @@ export default {
         objs.map(obj=>jet.obj.map(obj, (v,p)=>jet.obj.set(to, p, v, true), true));
         return to;
     },
-    analyze:function(...objs) {
-        const anal = new Set();
-        objs.map(obj=>jet.obj.map(obj, (v,p)=>anal.add(p), true));
-        return Array.from(anal).sort((a,b)=>b.localeCompare(a));
+    values:function(...objs) {
+        const vals = new Set();
+        objs.map(obj=>jet.obj.map(obj, (v,p)=>vals.add(p), true));
+        return Array.from(vals).sort((a,b)=>b.localeCompare(a));
+    },
+    audit:function(...objs) {
+        const audit = new Set();
+        objs.map(obj=>jet.obj.map(obj, (v,p)=>audt.add(p), (v,p)=>audit.add(p)));
+        return Array.from(audit).sort((a,b)=>b.localeCompare(a));
     },
     reduce:function(...objs) {
         const result = {};
@@ -76,14 +81,14 @@ export default {
     },
     match:function(to, from, fce) {
         fce = jet.get("function", fce);
-        jet.obj.analyze(to, from).map(path=>{
+        jet.obj.audit(to, from).map(path=>{
             jet.obj.set(to, path, fce(jet.obj.get(to, path), jet.obj.get(from, path), path), true);
         });
         return to;
     },
     compare: function(...objs) {
         const res = new Set();
-        jet.obj.analyze(...objs).map(path=>{
+        jet.obj.values(...objs).map(path=>{
             if (new Set(objs.map(obj=>jet.obj.get(obj, path))).size > 1) {
                 const parr = path.split(".");
                 parr.map((v,k)=>res.add(parr.slice(0, k+1).join(".")));
