@@ -54,6 +54,11 @@ export default {
         
         return obj;
     },
+    push:function(to, ...objs) {
+        to = jet.get("object", to);
+        objs.map(obj=>jet.obj.map(obj, (v,k,p)=>jet.obj.set(to, p, v, true), true));
+        return to;
+    },
     analyze:function(...objs) {
         const anal = new Set();
         objs.map(obj=>jet.obj.map(obj, (v,p)=>anal.add(p), (v,p)=>anal.add(p)));
