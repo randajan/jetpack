@@ -61,7 +61,7 @@ export default {
     },
     analyze:function(...objs) {
         const anal = new Set();
-        objs.map(obj=>jet.obj.map(obj, (v,p)=>anal.add(p), (v,p)=>anal.add(p)));
+        objs.map(obj=>jet.obj.map(obj, (v,p)=>anal.add(p), true));
         return Array.from(anal).sort((a,b)=>b.localeCompare(a));
     },
     reduce:function(...objs) {
@@ -82,11 +82,14 @@ export default {
         return to;
     },
     compare: function(...objs) {
-        const result = [];
+        const res = new Set();
         jet.obj.analyze(...objs).map(path=>{
-            if (new Set(objs.map(obj=>jet.obj.get(obj, path))).size > 1) { result.push(path); }
+            if (new Set(objs.map(obj=>jet.obj.get(obj, path))).size > 1) {
+                const parr = path.split(".");
+                parr.map((v,k)=>res.add(parr.slice(0, k+1).join(".")));
+            }
         })
-        return result;
+        return Array.from(res);
     },
     join: function(obj, comma, equation, lQuote, rQuote) {
         let [j, c, e, r, l] = jet.get(["string", ["string", comma, ","], ["string", equation], ["string", rQuote], ["string", lQuote]]);
