@@ -55,9 +55,9 @@ export default {
         return obj;
     },
     analyze:function(...objs) {
-        let match = new Set();
-        objs.map(obj=>jet.obj.map(obj, (v,p)=>match.add(p), (v,p)=>match.add(p)));
-        return Array.from(match).sort((a,b)=>b.localeCompare(a));
+        const anal = new Set();
+        objs.map(obj=>jet.obj.map(obj, (v,p)=>anal.add(p), (v,p)=>anal.add(p)));
+        return Array.from(anal).sort((a,b)=>b.localeCompare(a));
     },
     reduce:function(...objs) {
         const result = {};
@@ -69,21 +69,18 @@ export default {
         jet.obj.map(obj,(v,p)=>jet.obj.set(result, p, v, true));
         return result;
     },
-    match:function(...objs) { //+ validation
-        const validation = objs.pop();
-        const result = {};
-        jet.obj.analyze(...objs).map(path=>{
-            const val = validation(...objs.map(obj=>jet.obj.get(obj, path)), path);
-            if (val !== undefined) { jet.obj.set(result, path, val, true); }
+    match:function(to, from, fce) {
+        fce = jet.get("function", fce);
+        jet.obj.analyze(to, from).map(path=>{
+            jet.obj.set(to, path, fce(jet.obj.get(to, path), jet.obj.get(from, path), path), true);
         });
-        return result;
+        return to;
     },
     compare: function(...objs) {
         const result = [];
-        jet.obj.match(...objs, (...objs)=>{
-            const path = objs.pop(); 
-            if (new Set(objs).size > 1) { result.push(path); }
-        });
+        jet.obj.analyze(...objs).map(path=>{
+            if (new Set(objs.map(obj=>jet.obj.get(obj, path))).size > 1) { result.push(path); }
+        })
         return result;
     },
     join: function(obj, comma, equation, lQuote, rQuote) {
