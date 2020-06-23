@@ -69,7 +69,7 @@ class RunPool extends Pool {
     }
 
     run(...args) {
-        return jet.run(Array.from(this), ...this.with, ...args);
+        return jet.run(this, ...this.with, ...args);
     }
 
     classify(item) {
@@ -86,6 +86,20 @@ class RunPool extends Pool {
         this.add(...items);
         delete this.pending;
         return jet.run(pending, ...this.with);
+    }
+}
+
+class FitPool extends Pool {
+    constructor(...runwith) {
+        super("function", true);
+        jet.obj.addProperty(this, "with", runwith);
+    }
+
+    fit(...args) {
+        for (let i = this.length-1; i>=0; i--) {
+            args[0] = this[i](...this.with, ...args);
+        }
+        return args[0];
     }
 
 }
@@ -244,6 +258,7 @@ export default {
     ArrayLike,
     Pool,
     RunPool,
+    FitPool,
     Sort,
     Lexicon,
     Amount

@@ -8,7 +8,7 @@ export default {
         cap = new jet.Amount(cap, "kB");
         jet.obj.map(obj, (v,p)=>{
             if (v != null) {
-                sum.val += s = (k.length+v.length)*2/1024;
+                sum.val += s = (p.split(".").pop().length+v.length)*2/1024;
                 list.push([p, new jet.Amount(s, "kB", 2).toString()]);
             }
             return v;
