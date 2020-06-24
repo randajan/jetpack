@@ -24,6 +24,7 @@ jet.type.define(-1, "regexp", _=>_ instanceof RegExp, RegExp, _=>RegExp(_.source
 jet.type.define(-1, "date", _=>_ instanceof Date, Date, Date);
 jet.type.define(-1, "promise", _=>_ instanceof Promise, _=>new Promise(jet.get("function", _, _=>_())));
 jet.type.define(-1, "element", _=>_ instanceof Element);
+jet.type.define(-1, "error", _=>_ instanceof Error, (...args)=>new Error(...args))
 
 jet.type.define(-1, "set", _=>_ instanceof Set, (...a)=>new Set(...a), _=>new Set(_), _=>_.entries(), (_,k)=>_.has(k)?k:undefined, (_,k,v)=>_.delete(k)?_.add(v):undefined, (_,k)=>_.delete(k));
 jet.type.define(-1, "map", _=>_ instanceof Map, (...a)=>new Map(...a), _=>new Map(_));
