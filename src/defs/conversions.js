@@ -17,13 +17,15 @@ jet.to.define("string", {
     array:(str, sep)=>str.split(sep || ","),
     number:(str, strict)=>Number(strict ? str : ((str.match(jet.temp.regex.num) || []).join("")).replace(",", ".")),
     object:str=>jet.obj.fromJSON(str),
-    promise:str=>new Promise(ok=>ok(str))
+    promise:str=>new Promise(ok=>ok(str)),
+    error:str=>new Error(str)
 });
 
 jet.to.define("number", {
     function:num=>_=>num,
     boolean:num=>!!num,
-    promise:num=>new Promise(ok=>ok(num))
+    promise:num=>new Promise(ok=>ok(num)),
+    error:num=>new Error(num)
 });
 
 jet.to.define("object", {
@@ -33,7 +35,8 @@ jet.to.define("object", {
     number:obj=>Object.values(obj),
     array:obj=>Object.values(obj).length,
     string:obj=>jet.obj.toJSON(obj),
-    promise:obj=>new Promise(ok=>ok(obj))
+    promise:obj=>new Promise(ok=>ok(obj)),
+    error:obj=>new Error(jet.obj.toJSON(obj))
 });
 
 jet.to.define("array", {
@@ -42,7 +45,8 @@ jet.to.define("array", {
     number:arr=>arr.length,
     string:(arr, sep)=>arr.joins(sep),
     object:arr=>Object.assign({}, arr),
-    promise:arr=>new Promise(ok=>ok(arr))
+    promise:arr=>new Promise(ok=>ok(arr)),
+    error:(arr, sep)=>arr.joins(sep||" ")
 });
 
 jet.to.define("set", {
@@ -56,4 +60,3 @@ jet.to.define("set", {
 });
 
 jet.to.define("function", (fce, ...args)=>fce(...args));
-
