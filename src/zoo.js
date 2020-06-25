@@ -52,7 +52,7 @@ class Pool extends ArrayLike {
         for (let i=this.length-1; i>=0; i--) { delete this[i]; this.length --;  }
     }
 
-    pass(pool, item, dir) {
+    pass(item, pool, dir) {
         let c = pool, f = dir ? c : this, t = dir ? this : c, r = f.rem(item);
         if (t.add(item) >= 0) { return true; } else if (r) { f.add(item); }
         return false;
