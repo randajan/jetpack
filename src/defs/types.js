@@ -21,7 +21,7 @@ jet.type.define(-1, "string", _=>_ instanceof String, any=>any == null ? "" : St
 jet.type.define(-1, "number", _=>_ instanceof Number, Number);
 jet.type.define(-1, "symbol", _=>_ instanceof Symbol, Symbol);
 jet.type.define(-1, "regexp", _=>_ instanceof RegExp, RegExp, _=>RegExp(_.source));
-jet.type.define(-1, "date", _=>_ instanceof Date, Date, Date);
+jet.type.define(-1, "date", _=>_ instanceof Date, _=>new Date(_), _=>new Date(_));
 jet.type.define(-1, "promise", _=>_ instanceof Promise, _=>new Promise(jet.get("function", _, _=>_())));
 jet.type.define(-1, "element", _=>_ instanceof Element);
 jet.type.define(-1, "error", _=>_ instanceof Error, (...args)=>new Error(...args))
