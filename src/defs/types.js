@@ -22,7 +22,7 @@ jet.type.define(-2, "boolean", _=>_ instanceof Boolean, Boolean);
 jet.type.define(-2, "string", _=>_ instanceof String, any=>any == null ? "" : String(any));
 jet.type.define(-2, "symbol", _=>_ instanceof Symbol, Symbol);
 jet.type.define(-2, "regexp", _=>_ instanceof RegExp, RegExp, _=>RegExp(_.source));
-jet.type.define(-2, "date", _=>_ instanceof Date, _=>new Date(_), _=>new Date(_));
+jet.type.define(-2, "date", _=>_ instanceof Date, _=>_ == null ? new Date() : new Date(_));
 
 jet.type.define(-1, "promise", _=>_ instanceof Promise, _=>new Promise(jet.get("function", _, _=>_())));
 jet.type.define(-1, "error", _=>_ instanceof Error, (...args)=>new Error(...args))
@@ -31,8 +31,6 @@ jet.type.define(-1, "element", _=>_ instanceof Element);
 
 jet.type.define(-1, "set", _=>_ instanceof Set, (...a)=>new Set(...a), _=>new Set(_), _=>_.entries(), (_,k)=>_.has(k)?k:undefined, (_,k,v)=>_.delete(k)?_.add(v):undefined, (_,k)=>_.delete(k));
 jet.type.define(-1, "map", _=>_ instanceof Map, (...a)=>new Map(...a), _=>new Map(_));
-
-
 
 
 jet.type.define(0, "amount", _=>_ instanceof jet.Amount, (...args)=>new jet.Amount(...args), _=>new jet.Amount(_))
