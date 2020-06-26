@@ -1,7 +1,6 @@
 import temp from "./temp";
 import num from "./num";
 import str from "./str";
-import unit from "./unit";
 import color from "./color";
 import time from "./time";
 import obj from "./obj";
@@ -11,24 +10,25 @@ import test from "./test";
 import zoo from "./zoo";
 import web from "./web";
 import event from "./event";
+import Amount from "./amount";
 
 const jet = {
-
     type:function(any, all) {
-        if (any == null) { return all ? [] : undefined; }
-        let types = temp.types, td = typeof any, r = [types[td]||{priority:-3, name:td}];
-        for (let n in types) {let t = types[n]; if (n !== td && t.is && t.is(any)) {r.push(t);}}
-        r = r.sort((a,b)=>b.priority-a.priority).map(_=>_.name);
-        return all ? r : r[0];
+        const td = typeof any, r = all ? new Set() : undefined; if (any == null) { return r; }
+        for (let type of temp.types.list) {
+            if (!type.is || !type.is(any, td)) { continue; }
+            if (r) { r.add(type.name) } else { return type.name; }
+        }
+        if (!r) { return td; } else { r.add(td); return Array.from(r); }
     },
     to:function(type, any, ...args) {
-        const typeFrom = jet.type(any), from = jet.temp.types[typeFrom];
+        const typeFrom = jet.type(any), from = temp.types.index[typeFrom];
         if (type === typeFrom) { return any; }
         if (!from) { return jet.create(type); }
         const exe = from.conv[type] || from.conv["*"]; 
         return exe ? jet.to(type, exe(any, ...args), ...args) : jet.create(type, any);
     },
-    isMapable:function(any) {const t = jet.temp.types[jet.type(any)]; return !!(t && t.map);},
+    isMapable:function(any) {const t = temp.types.index[jet.type(any)]; return !!(t && t.map);},
     isFull:function(any) {
         const type = jet.type(any);
         if (type === "array") { return !!any.length; }
@@ -45,8 +45,8 @@ const jet = {
         if (type === "full") {return jet.isFull(any);}
         return inclusive ? jet.type(any, true).includes(type) : type === jet.type(any);
     },
-    create:function(type, ...args) {const t = jet.temp.types[type]; return (t && t.create) ? t.create(...args) : null;},
-    copy:function(any, ...args) {const t = jet.temp.types[jet.type(any)]; return (t && t.copy) ? t.copy(any, ...args) : any},
+    create:function(type, ...args) {const t = temp.types.index[type]; return (t && t.create) ? t.create(...args) : null;},
+    copy:function(any, ...args) {const t = temp.types.index[jet.type(any)]; return (t && t.copy) ? t.copy(any, ...args) : any},
     factory:function(create, copy, type, ...args) {
         const map = jet.key.map(type);
         if (map) {
@@ -69,7 +69,7 @@ const jet = {
     },
     key:{
         touch: function(op, any, key, val) {
-            const t = jet.temp.types[jet.type(any)]; 
+            const t = temp.types.index[jet.type(any)]; 
             if (t && t[op]) {return t[op](any, key, val);}
         },
         map: function(any) {return jet.key.touch("map", any);},
@@ -84,7 +84,7 @@ const jet = {
     temp,
     num,
     str,
-    unit,
+    Amount,
     color,
     time,
     obj,

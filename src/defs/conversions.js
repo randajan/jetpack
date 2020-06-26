@@ -1,9 +1,9 @@
 import jet from "../jet";
 
 jet.to.define = function(from, to, execute) {
-    const types = jet.temp.types;
+    const types = jet.temp.types.index;
     const tt = jet.type(to);
-    if (!types[from]) {throw "Can't add conversion! Type '" + from + "' wasn't defined!!!";}
+    if (!types[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
     const conv = types[from].conv;
     if (tt === "array") { for (let i in to) { conv[to[i]] = execute; } }
     else if (tt === "object") { for (let i in to) { conv[i] = to[i]; } }
@@ -18,7 +18,8 @@ jet.to.define("string", {
     number:(str, strict)=>Number(strict ? str : ((str.match(jet.temp.regex.num) || []).join("")).replace(",", ".")),
     object:str=>jet.obj.fromJSON(str),
     promise:str=>new Promise(ok=>ok(str)),
-    error:str=>new Error(str)
+    error:str=>new Error(str),
+    //amount:str=>new jet.Amount(str)
 });
 
 jet.to.define("number", {
@@ -60,3 +61,4 @@ jet.to.define("set", {
 });
 
 jet.to.define("function", (fce, ...args)=>fce(...args));
+jet.to.define("nan", _=>undefined);

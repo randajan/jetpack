@@ -179,78 +179,10 @@ class Lexicon {
 
 };
 
-class Amount {
-    constructor(val, unit, dec) {
-        const _parent = (jet.is(Amount, val) && jet.unit.validate(unit, val.unit)) ? val : null;
-        let _val;
-
-        if (dec) { this.dec = dec; }
-        jet.obj.addProperty(this, "unit", jet.unit.validate(unit), false, true);
-
-        Object.defineProperties(this, {
-            val: {
-                enumerable: true,
-                get: _ => _parent ? _parent.valueOf(this.unit) : _val,
-                set: val => {
-                    let num, unit;
-                    if (jet.is("number", val)) { num = val; }
-                    else if (jet.is(Amount)) { num = val.val; unit = val.unit; }
-                    else {
-                        const str = jet.str.to(val);
-                        const strnum = (str.match(jet.temp.regex.num) || []).join("");
-                        unit = strnum ? str.split(strnum)[1] : "";
-                        num = Number(strnum.replace(",", "."));
-                    }
-                    if (!jet.unit.validate(this.unit, unit)) { return; }
-                    if (!_parent) { return _val = jet.unit.convert(num, unit, this.unit); }
-                    else { _parent.val = jet.unit.convert(num, unit||this.unit, _parent.unit); }
-                }
-            }
-        });
-
-        this.val = val;
-    }
-
-    fit(dec) {
-        const fit = [];
-        jet.obj.map(jet.temp.units[this.unit], (to, unit) => {
-            const num = jet.num.round(to(this.val), dec == null ? this.dec : dec);
-            if (num) {fit.push([unit, jet.num.length(num)]);}
-        });
-        return jet.isEmpty(fit) ? this.unit : fit.sort((a, b) => a[1] - b[1])[0][0];
-    }
-
-    convert(unit, dec, stickThis) {
-        if (!jet.unit.validate(this.unit, unit)) { return }
-        if (!unit) {unit = this.fit(dec);}
-        return new Amount(stickThis ? this : this.valueOf(unit), unit, dec == null ? this.dec : dec);
-    }
-
-    valueOf(unit, dec) { 
-        return jet.unit.convert(this.val, this.unit, unit, dec == null ? this.dec : dec); 
-    }
-
-    toString(unit, dec) {
-        unit = unit || this.fit(dec); 
-        return this.valueOf(unit, dec)+(jet.unit.validate(unit, this.unit) || this.unit);
-    }
-
-    toJSON() { return this.toString(); }
-
-    static create(val, unit, dec) {
-        return jet.is(Amount, val) ? val.convert(unit) : new Amount(val, unit, dec);
-    }
-
-    static convert(num, inUnit, outUnit, dec) {
-        return Amount.convert(num, inUnit, outUnit, dec);
-    }
-}
-
 export default {
     ArrayLike,
     Pool,
     RunPool,
     Sort,
-    Lexicon,
-    Amount
+    Lexicon
 }
