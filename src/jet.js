@@ -14,12 +14,12 @@ import Amount from "./amount";
 
 const jet = {
     type:function(any, all) {
-        const td = typeof any, r = all ? new Set() : undefined; if (any == null) { return r; }
+        const td = typeof any, r = all ? [] : undefined; if (any == null) { return r; }
         for (let type of temp.types.list) {
             if (!type.is || !type.is(any, td)) { continue; }
-            if (r) { r.add(type.name) } else { return type.name; }
+            if (r) { r.push(type.name) } else { return type.name; }
         }
-        if (!r) { return td; } else { r.add(td); return Array.from(r); }
+        if (!r) { return td; } else { r.push(td); return r; }
     },
     to:function(type, any, ...args) {
         const typeFrom = jet.type(any), from = temp.types.index[typeFrom];

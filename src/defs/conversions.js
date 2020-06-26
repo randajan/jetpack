@@ -19,14 +19,15 @@ jet.to.define("string", {
     object:str=>jet.obj.fromJSON(str),
     promise:str=>new Promise(ok=>ok(str)),
     error:str=>new Error(str),
-    //amount:str=>new jet.Amount(str)
+    amount:(val, ...args)=>new jet.Amount(val, ...args)
 });
 
 jet.to.define("number", {
     function:num=>_=>num,
     boolean:num=>!!num,
     promise:num=>new Promise(ok=>ok(num)),
-    error:num=>new Error(num)
+    error:num=>new Error(num),
+    amount:(val, ...args)=>new jet.Amount(val, ...args)
 });
 
 jet.to.define("object", {
@@ -59,6 +60,7 @@ jet.to.define("set", {
     object:set=>jet.obj.merge(set),
     promise:set=>new Promise(ok=>ok(set))
 });
+
 
 jet.to.define("function", (fce, ...args)=>fce(...args));
 jet.to.define("nan", _=>undefined);

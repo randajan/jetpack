@@ -23,6 +23,7 @@ class Amount {
     static parse(any) {
         if (jet.is("number", any)) { return [any, ""]; }
         if (jet.is("array", any)) { return [jet.num.to(any[0]), jet.str.to(any[1])] };
+        if (jet.is("date", any)) { return [Number(any), "ms"]; }
         if (jet.is("object", any, true)) { return [jet.num.to(any.val), jet.str.to(any.unit)]; }
         any = jet.str.to(any);
         const val = jet.num.to(any);
@@ -66,7 +67,7 @@ class Amount {
     constructor(val, unit, dec) {
         const parent = (jet.is(Amount, val) && Amount.validatePair(unit, val.unit)) ? val : null;
         [ val, unit ] = Amount.fetch(val, unit, dec, true);
-        console.log(parent);
+
         if (dec) { this.dec = dec; }
         jet.obj.addProperty(this, "unit", unit);
 
