@@ -97,7 +97,7 @@ export default {
         jet.obj.map(obj, v=>{v = jet.obj.melt(v, c); j += v ? (j?c:"")+v : ""});
         return j
     },
-    join: function(obj, comma, equation, lQuote, rQuote) {
+    join: function(obj, comma, equation, lQuote, rQuote) { //obsolete need rename
         let [j, c, e, r, l] = jet.get(["string", ["string", comma, ","], ["string", equation], ["string", rQuote], ["string", lQuote]]);
         jet.obj.map(obj, (v,k)=>{v = jet.str.to(v); j += v ? (j?c:"")+((e?(l+k+l+e):"")+(r+v+r)) : "";});
         return j;

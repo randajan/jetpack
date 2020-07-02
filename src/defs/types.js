@@ -1,7 +1,7 @@
 import jet from "../jet";
 
 jet.type.define = function(priority, name, is, create, copy, map, get, set, rem) {
-    const { list, index } = jet.temp.types;
+    const { list, index } = jet.temp.type;
     if (index[name]) {throw new Error("Type '" + name + "' can't be redefined!!!");}
     if (map) {
         get = get || ((_, k)=>_[k]);

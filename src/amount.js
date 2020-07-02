@@ -7,7 +7,7 @@ class AmountError extends Error {
 class Amount {
 
     static validateUnit(unit, force) {
-        if (jet.temp.units[unit]) { return unit; }
+        if (jet.temp.amount.conv[unit]) { return unit; }
         if (force) { return ""; }
         throw new AmountError("Undefined Amount units '"+unit+"'"); 
     }
@@ -15,19 +15,22 @@ class Amount {
     static validatePair(unit, parent, force) {
         unit = Amount.validateUnit(unit, force);
         parent = Amount.validateUnit(parent, force);
-        if (unit && parent && jet.temp.units[unit][parent]) { return unit; }
+        if (unit && parent && jet.temp.amount.conv[unit][parent]) { return unit; }
         if (force) { return ""; }
         throw new AmountError("Undefined Amount relation '"+unit+"' to '"+parent+"'");
     }
 
     static parse(any) {
-        if (jet.is("number", any)) { return [any, ""]; }
-        if (jet.is("array", any)) { return [jet.num.to(any[0]), jet.str.to(any[1])] };
-        if (jet.is("date", any)) { return [Number(any), "ms"]; }
+        const { number, amount } = jet.temp;
+        const type = jet.type(any);
+        if (type === "number") { return [any, ""]; }
+        if (type === "array") { return [jet.num.to(any[0]), jet.str.to(any[1])] };
+        if (type === "date") { return [Number(any), "ms"]; }
         if (jet.is("object", any, true)) { return [jet.num.to(any.val), jet.str.to(any.unit)]; }
-        any = jet.str.to(any);
-        const val = jet.num.to(any);
-        const unit = any.split(String(val))[1];
+        const parse = (jet.str.to(any).match(number.match+amount.match) || [])[0];
+        if (!parse) { return [jet.num.to(any), ""]; }
+        const unit = (parse.match(amount.match) || [])[0];
+        const val = Number((parse.split(unit)[0] || "").replace(",", "."));
         return [val, unit];
     }
 
@@ -35,7 +38,7 @@ class Amount {
         let [ aval, aunit ] = Amount.parse(amount); 
         aunit = Amount.validateUnit(aunit || unit);
         if (aunit && unit && aunit !== unit && Amount.validatePair(aunit, unit)) {
-            aval = jet.temp.units[aunit][unit](aval);
+            aval = jet.temp.amount.conv[aunit][unit](aval);
             aunit = unit;
         }
         if (dec) { aval = jet.num.round(aval, dec); }
@@ -43,9 +46,10 @@ class Amount {
     }
     
     static define(unit, parent, exponent, path) {
-        const units = jet.temp.units;
-        const boundParent = units[parent] || (units[parent] = {});
-        const boundUnit = units[unit] || (units[unit] = {});
+        const amount = jet.temp.amount;
+        const { list, conv } = amount;
+        const boundParent = conv[parent] || (conv[parent] = {});
+        const boundUnit = conv[unit] || (conv[unit] = {});
         path = jet.get("array", path, [unit, parent]);
         if (boundParent[unit] || boundUnit[parent]) { throw new AmountError("Relation between Amount units '" + unit + "' and '" + parent + "' can't be redefined!!!"); }
 
@@ -57,6 +61,11 @@ class Amount {
             if (path.includes(k)) { continue; } else { path.push(k); }
             Amount.define(unit, k, boundParent[k](exponent), path);
         }
+
+        list.add(unit);
+        list.add(parent);
+        jet.temp.amount.match = "("+jet.obj.melt(list, "|")+")(?=[^a-zA-z])?";
+
         return true;
     }
 
@@ -85,7 +94,7 @@ class Amount {
 
     fit(dec) {
         const fit = [];
-        jet.obj.map(jet.temp.units[this.unit], (to, unit) => {
+        jet.obj.map(jet.temp.amount.conv[this.unit], (to, unit) => {
             const num = jet.num.round(to(this.val), dec == null ? this.dec : dec);
             if (num) {fit.push([unit, jet.num.length(num)]);}
         });

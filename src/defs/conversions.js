@@ -1,10 +1,10 @@
 import jet from "../jet";
 
 jet.to.define = function(from, to, execute) {
-    const types = jet.temp.types.index;
+    const type = jet.temp.type.index;
     const tt = jet.type(to);
-    if (!types[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
-    const conv = types[from].conv;
+    if (!type[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
+    const conv = type[from].conv;
     if (tt === "array") { for (let i in to) { conv[to[i]] = execute; } }
     else if (tt === "object") { for (let i in to) { conv[i] = to[i]; } }
     else if (tt === "function") { conv["*"] = to; }
@@ -35,11 +35,12 @@ jet.to.define("object", {
     function:obj=>_=>obj,
     symbol:obj=>Symbol(jet.obj.toJSON(obj)),
     boolean:obj=>jet.isFull(obj),
-    number:obj=>Object.values(obj).length,
+    number:obj=>Object.values(obj),
     array:obj=>Object.values(obj),
     string:obj=>jet.obj.toJSON(obj),
     promise:obj=>new Promise(ok=>ok(obj)),
-    error:obj=>new Error(jet.obj.toJSON(obj))
+    error:obj=>new Error(jet.obj.toJSON(obj)),
+    regexp:(obj,comma)=>jet.obj.melt(obj, comma != null ? comma : "|")
 });
 
 jet.to.define("array", {
@@ -49,17 +50,16 @@ jet.to.define("array", {
     string:(arr, comma)=>arr.melt(comma),
     object:arr=>Object.assign({}, arr),
     promise:arr=>new Promise(ok=>ok(arr)),
-    error:(arr, comma)=>arr.melt(comma||" ")
+    error:(arr, comma)=>arr.melt(comma != null ? comma : " "),
+    regexp:(arr,comma)=>arr.melt(comma != null ? comma : "|")
 });
 
 jet.to.define("set", {
+    "*":set=>Array.from(set),
     function:set=>_=>set,
     boolean:set=>jet.isFull(set),
-    number:set=>Array.from(set).length,
-    array:set=>Array.from(set),
-    string:(set, comma)=>Array.from(set).melt(comma),
     object:set=>jet.obj.merge(set),
-    promise:set=>new Promise(ok=>ok(set))
+    promise:set=>new Promise(ok=>ok(set)),
 });
 
 

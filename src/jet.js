@@ -15,20 +15,20 @@ import Amount from "./amount";
 const jet = {
     type:function(any, all) {
         const td = typeof any, r = all ? [] : undefined; if (any == null) { return r; }
-        for (let type of temp.types.list) {
+        for (let type of temp.type.list) {
             if (!type.is || !type.is(any, td)) { continue; }
             if (r) { r.push(type.name) } else { return type.name; }
         }
         if (!r) { return td; } else { r.push(td); return r; }
     },
     to:function(type, any, ...args) {
-        const typeFrom = jet.type(any), from = temp.types.index[typeFrom];
+        const typeFrom = jet.type(any), from = temp.type.index[typeFrom];
         if (type === typeFrom) { return any; }
         if (!from) { return jet.create(type); }
         const exe = from.conv[type] || from.conv["*"]; 
         return exe ? jet.to(type, exe(any, ...args), ...args) : jet.create(type, any);
     },
-    isMapable:function(any) {const t = temp.types.index[jet.type(any)]; return !!(t && t.map);},
+    isMapable:function(any) {const t = temp.type.index[jet.type(any)]; return !!(t && t.map);},
     isFull:function(any) {
         const type = jet.type(any);
         if (type === "array") { return !!any.length; }
@@ -45,8 +45,8 @@ const jet = {
         if (type === "full") {return jet.isFull(any);}
         return inclusive ? jet.type(any, true).includes(type) : type === jet.type(any);
     },
-    create:function(type, ...args) {const t = temp.types.index[type]; return (t && t.create) ? t.create(...args) : null;},
-    copy:function(any, ...args) {const t = temp.types.index[jet.type(any)]; return (t && t.copy) ? t.copy(any, ...args) : any},
+    create:function(type, ...args) {const t = temp.type.index[type]; return (t && t.create) ? t.create(...args) : null;},
+    copy:function(any, ...args) {const t = temp.type.index[jet.type(any)]; return (t && t.copy) ? t.copy(any, ...args) : any},
     factory:function(create, copy, type, ...args) {
         const map = jet.key.map(type);
         if (map) {
@@ -69,7 +69,7 @@ const jet = {
     },
     key:{
         touch: function(op, any, key, val) {
-            const t = temp.types.index[jet.type(any)]; 
+            const t = temp.type.index[jet.type(any)]; 
             if (t && t[op]) {return t[op](any, key, val);}
         },
         map: function(any) {return jet.key.touch("map", any);},

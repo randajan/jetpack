@@ -3,7 +3,7 @@ import jet from "./index";
 
 export default {
     to:function(...args) { return jet.to("array", ...args); },
-    wrap:function(any, sep) {
+    wrap:function(any, sep) { //obsolete
         const type = jet.type(any);
         if (any == null) {return [];}
         if (type === "array") {return any;}
@@ -32,7 +32,7 @@ export default {
         [arr, handler, rekey] = jet.get([["array", arr], ["function", handler, v=>v!=null?v:undefined], ["boolean", rekey, true]]);
         return rekey ? arr.filter(handler) : jet.obj.map(arr, handler);
     },
-    joins: function(...args) {
+    joins: function(...args) { //obsolete
         return jet.obj.join(...args);
     },
     melt: function(...args) {

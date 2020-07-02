@@ -1,9 +1,15 @@
 export default {
-    types:{
+    type:{
         list:[],
         index:{}
     },
-    units:{},
+    amount:{
+        list:new Set(),
+        conv:{},
+    },
+    number:{
+        match:"-?(([0-9]*\\.|[0-9]+,))?[0-9]+"
+    },
     dimension:[{a:"x", v:"ver", s:"left", e:"right", z:"width"}, {a:"y", v:"hor", s:"top", e:"bottom", z:"height"}, {a:"z", v:"in", s:"front", e:"back", z:"depth"}],  
     clean:{to:"aacdeeillnooorstuuuyrzAACDEEILLNOOORSTUUUYRZ", from:"áäčďéěíĺľňóôöŕšťúůüýřžÁÄČĎÉĚÍĹĽŇÓÔÖŔŠŤÚŮÜÝŘŽ"},
     vowels: "aeiouy", consonant:"bcdfghjklmnpqrstvwxz",
