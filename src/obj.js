@@ -21,7 +21,7 @@ export default {
     },
     indexOf: function(obj, val) { if (obj.indexOf) {return obj.indexOf(val);} for (let i in o) {if (o[i] === val) {return i;}}},
     get: function(obj, path, def) {
-        const pa = jet.arr.to(path, ".");
+        const pa = jet.str.to(path, ".").split(".");
         for (let p of pa) {if (obj == null || !jet.is("object", obj, true)) {return def;}; obj = obj[p];}
         return obj;
     },
@@ -29,7 +29,7 @@ export default {
         return jet.is("object", obj, true) ? obj : isNaN(Number(key)) ? {} : [];
     },
     set: function(obj, path, val, force) {
-        const pa = jet.arr.to(path, ".");
+        const pa = jet.str.to(path, ".").split(".");
         const r = obj = jet.obj.getForSet(obj, pa[0]);
         for (let [i, p] of pa.entries()) {
             let blank = obj[p] == null, last = i === pa.length-1;
@@ -59,14 +59,9 @@ export default {
         objs.map(obj=>jet.obj.map(obj, (v,p)=>jet.obj.set(to, p, v, true), true));
         return to;
     },
-    values:function(...objs) {
-        const vals = new Set();
-        objs.map(obj=>jet.obj.map(obj, (v,p)=>vals.add(p), true));
-        return Array.from(vals).sort((a,b)=>b.localeCompare(a));
-    },
-    audit:function(...objs) {
+    audit:function(includeMapable, ...objs) {
         const audit = new Set();
-        objs.map(obj=>jet.obj.map(obj, (v,p)=>audit.add(p), (v,p)=>audit.add(p)));
+        objs.map(obj=>jet.obj.map(obj, (v,p)=>audit.add(p), includeMapable ? (v,p)=>audit.add(p) : true));
         return Array.from(audit).sort((a,b)=>b.localeCompare(a));
     },
     reduce:function(...objs) {
@@ -81,20 +76,26 @@ export default {
     },
     match:function(to, from, fce) {
         fce = jet.get("function", fce);
-        jet.obj.audit(to, from).map(path=>{
+        jet.obj.audit(true, to, from).map(path=>{
             jet.obj.set(to, path, fce(jet.obj.get(to, path), jet.obj.get(from, path), path), true);
         });
         return to;
     },
     compare: function(...objs) {
         const res = new Set();
-        jet.obj.values(...objs).map(path=>{
+        jet.obj.audit(false, ...objs).map(path=>{
             if (new Set(objs.map(obj=>jet.obj.get(obj, path))).size > 1) {
                 const parr = path.split(".");
                 parr.map((v,k)=>res.add(parr.slice(0, k+1).join(".")));
             }
         })
         return Array.from(res);
+    },
+    melt(obj, comma) {
+        let [j, c, d] = jet.get(["string", ["string", comma]]);
+        if (!jet.isMapable(obj)) { return jet.str.to(obj, c, d); }
+        jet.obj.map(obj, v=>{v = jet.obj.melt(v, c); j += v ? (j?c:"")+v : ""});
+        return j
     },
     join: function(obj, comma, equation, lQuote, rQuote) {
         let [j, c, e, r, l] = jet.get(["string", ["string", comma, ","], ["string", equation], ["string", rQuote], ["string", lQuote]]);

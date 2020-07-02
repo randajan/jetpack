@@ -3,11 +3,13 @@ import jet from "./index";
 
 export default {
     to:function(...args) { return jet.to("array", ...args); },
-    wrap:function(any) {
+    wrap:function(any, sep) {
+        const type = jet.type(any);
         if (any == null) {return [];}
-        if (jet.is("array", any)) {return any;}
-        if (jet.is("object", any)) {return Object.values(any);}
-        if (jet.is("set", any)) {return Array.from(any);}
+        if (type === "array") {return any;}
+        if (type === "object") {return Object.values(any);}
+        if (type === "set") {return Array.from(any);}
+        if (type === "string" && sep) { return any.split(sep);}
         if (!jet.isMapable(any)) {return [any];}
         const result = []; 
         jet.obj.map(any, v=>a.push(v));
@@ -32,5 +34,8 @@ export default {
     },
     joins: function(...args) {
         return jet.obj.join(...args);
+    },
+    melt: function(...args) {
+        return jet.obj.melt(...args);
     }
 };
