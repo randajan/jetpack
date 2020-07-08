@@ -1,4 +1,4 @@
-import jet from "./index";
+import jet from "./jet";
 
 class ArrayLike {
     constructor() { jet.obj.addProperty(this, "length", 0, true); }

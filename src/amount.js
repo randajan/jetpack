@@ -1,4 +1,4 @@
-import jet from "./index";
+import jet from "./jet";
 
 class AmountError extends Error {
 

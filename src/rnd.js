@@ -1,4 +1,4 @@
-import jet from "./index";
+import jet from "./jet";
 
 export default {
     get: function(type, ...args) {const gen = jet.rnd[type]; return jet.get(type, gen ? gen(...args) : null);},

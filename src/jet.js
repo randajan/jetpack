@@ -10,7 +10,8 @@ import test from "./test";
 import zoo from "./zoo";
 import web from "./web";
 import event from "./event";
-import Amount from "./amount";
+import Amount from "./Amount";
+import Engage from "./Engage";
 
 const jet = {
     type:function(any, all) {
@@ -79,12 +80,11 @@ const jet = {
     },
     run:function(any, ...args) {
         if (jet.is("function", any)) {return any(...args);}
-        return jet.obj.map(any, f=>jet.run(f, ...args));
+        return jet.isMapable(any) ? jet.obj.map(any, f=>jet.run(f, ...args)) : undefined;
     },
     temp,
     num,
     str,
-    Amount,
     color,
     time,
     obj,
@@ -93,6 +93,8 @@ const jet = {
     test,
     web,
     event,
+    Amount,
+    Engage,
     ...zoo
 };
 

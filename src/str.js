@@ -1,5 +1,5 @@
 
-import jet from "./index";
+import jet from "./jet";
 
 
 export default {

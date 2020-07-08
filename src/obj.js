@@ -1,4 +1,4 @@
-import jet from "./index";
+import jet from "./jet";
 
 export default {
     to:function(...args) { return jet.to("object", ...args); },

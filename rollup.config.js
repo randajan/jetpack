@@ -22,6 +22,7 @@ export default {
       sourcemap: true
     }
   ],
+  external: ['crypto'],
   plugins: [
     external(),
     postcss({
@@ -31,7 +32,11 @@ export default {
     svgr(),
     babel({
       exclude: 'node_modules/**',
-      plugins: [ 'external-helpers' ]
+      runtimeHelpers: true,
+      plugins: [
+        'transform-runtime',
+        'external-helpers',
+      ]
     }),
     resolve(),
     commonjs()

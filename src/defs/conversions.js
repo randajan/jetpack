@@ -63,5 +63,6 @@ jet.to.define("set", {
 });
 
 
+
 jet.to.define("function", (fce, ...args)=>fce(...args));
 jet.to.define("nan", _=>undefined);
