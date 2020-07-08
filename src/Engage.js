@@ -19,8 +19,12 @@ class Engage extends Promise {
 
         const desc = jet.obj.map(_priv, (v,k)=>({enumerable, get:_=>_priv[k]}));
 
-        desc.state = { enumerable, get:_=>(parent && parent.is("pending") && _priv.state === "pending") ? "waiting" : _priv.state }
-        desc.start = { enumerable, get:_=>!parent ? _priv.create : parent.is("pending") ? undefined : parent.end}
+        desc.state = { enumerable, get:_=> (parent && parent.is("pending") && _priv.state === "pending") ? "waiting" : _priv.state }
+        desc.start = { enumerable, get:_=>
+            !parent ? _priv.create : 
+            parent.is("pending") ? undefined : 
+            parent.end > _priv.create ? parent.end : _priv.create
+        }
 
         desc.timein = { enumerable, get:_=>this.start ? Math.max(0, jet.get("date", _priv.end)-this.start) : 0};
 
