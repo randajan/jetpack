@@ -36,21 +36,20 @@ class Engage extends Promise {
                 if (!Engage.states.includes(state)) { return false; }
                 _priv.state = state;
                 _priv.end = new Date();
-                clearTimeout(tid);
+                clearInterval(tid);
                 if (state === "result") { _priv[state] = data; resolve(data); }
                 else if (state === "error") { _priv[state] = data; reject(data); }
                 else { resolve(); }
                 return true;
             } }
 
-            desc.timeout = { value:_=>this.break("timeout") }
             desc.cancel = { value:_=>this.break("cancel") }
             desc.throw = { value:error=>this.break("error", error) }
             desc.resolve = { value:result=>this.break("result", result) }
             
             const status = Object.defineProperties({}, desc);
 
-            if (timeout) { tid = setTimeout(status.timeout, timeout); }
+            if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { this.break("timeout"); }} , 100); }
 
             if (jet.is("function", exe)) { return exe(status); }
             if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
