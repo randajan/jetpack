@@ -18,6 +18,7 @@ jet.to.define("string", {
     number:(str, strict)=>Number(strict ? str : ((str.match(jet.temp.regex.num) || []).join("")).replace(",", ".")),
     object:str=>jet.obj.fromJSON(str),
     promise:str=>new Promise(ok=>ok(str)),
+    engage:str=>new jet.Engage(s=>s.result(str)),
     error:str=>new Error(str),
     amount:(val, ...args)=>new jet.Amount(val, ...args)
 });
@@ -27,6 +28,7 @@ jet.to.define("number", {
     boolean:num=>!!num,
     array:(num, comma)=>comma?[num]:Array(num),
     promise:num=>new Promise(ok=>ok(num)),
+    engage:num=>new jet.Engage(s=>s.result(num)),
     error:num=>new Error(num),
     amount:(val, ...args)=>new jet.Amount(val, ...args),
 });
@@ -39,6 +41,7 @@ jet.to.define("object", {
     array:obj=>Object.values(obj),
     string:obj=>jet.obj.toJSON(obj),
     promise:obj=>new Promise(ok=>ok(obj)),
+    engage:obj=>new jet.Engage(s=>s.result(obj)),
     error:obj=>new Error(jet.obj.toJSON(obj)),
     regexp:(obj,comma)=>jet.obj.melt(obj, comma != null ? comma : "|")
 });
@@ -50,8 +53,9 @@ jet.to.define("array", {
     string:(arr, comma)=>arr.melt(comma),
     object:arr=>Object.assign({}, arr),
     promise:arr=>new Promise(ok=>ok(arr)),
+    engage:arr=>new jet.Engage(s=>s.result(arr)),
     error:(arr, comma)=>arr.melt(comma != null ? comma : " "),
-    regexp:(arr,comma)=>arr.melt(comma != null ? comma : "|")
+    regexp:(arr, comma)=>arr.melt(comma != null ? comma : "|")
 });
 
 jet.to.define("set", {
@@ -60,9 +64,12 @@ jet.to.define("set", {
     boolean:set=>jet.isFull(set),
     object:set=>jet.obj.merge(set),
     promise:set=>new Promise(ok=>ok(set)),
+    engage:set=>new jet.Engage(s=>s.result(set)),
 });
 
-
+jet.to.define("promise", {
+    engage:(prom, timeout)=>new jet.Engage(prom, timeout)
+})
 
 jet.to.define("function", (fce, ...args)=>fce(...args));
 jet.to.define("nan", _=>undefined);

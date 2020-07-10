@@ -2,9 +2,13 @@ import jet from "./jet";
 
 class Engage extends Promise {
 
+    static $$jettype = Symbol("engage");
     static states = ["waiting", "pending", "result", "error", "cancel", "timeout"];
 
+    static is(instance) { return instance && instance.$$jettype === Engage.$$jettype; }
+
     constructor(exe, timeout, parent) {
+
         const enumerable = true
         const _priv = {
             parent,
@@ -52,10 +56,11 @@ class Engage extends Promise {
             if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { this.break("timeout"); }} , 100); }
 
             if (jet.is("function", exe)) { return exe(status); }
-            if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
+            if (jet.is("promise", exe) || Engage.is(exe)) { exe.then(status.resolve, status.throw); }
             
         });
 
+        jet.obj.addProperty(this, "$$jettype", Engage.$$jettype);
         Object.defineProperties(this, desc);
 
         const _then = this.then.bind(this);
@@ -76,7 +81,7 @@ class Engage extends Promise {
                 const exe = _=>jet.run(this.is("result") ? onresolve : onreject, child);
                 return child = new Engage(_then(exe, exe), timeout, this);
             },
-        })
+        });
     }
 }
 

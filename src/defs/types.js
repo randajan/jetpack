@@ -34,3 +34,5 @@ jet.type.define(-1, "map", _=>_ instanceof Map, (...a)=>new Map(...a), _=>new Ma
 
 
 jet.type.define(0, "amount", _=>_ instanceof jet.Amount, (...a)=>new jet.Amount(...a), _=>new jet.Amount(_));
+
+jet.type.define(0, "engage", jet.Engage.is, (...a)=>new jet.Engage(...a));
