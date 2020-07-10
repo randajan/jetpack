@@ -19,7 +19,7 @@ export default {
         jet.obj.map(property, k=>props[k]=obj[k]);
         return props;
     },
-    indexOf: function(obj, val) { if (obj.indexOf) {return obj.indexOf(val);} for (let i in o) {if (o[i] === val) {return i;}}},
+    indexOf: function(obj, val) { if (obj.indexOf) {return obj.indexOf(val);} for (let i in obj) {if (obj[i] === val) {return i;}}},
     get: function(obj, path, def) {
         const pa = jet.str.to(path, ".").split(".");
         for (let p of pa) {if (obj == null || !jet.is("object", obj, true)) {return def;}; obj = obj[p];}
