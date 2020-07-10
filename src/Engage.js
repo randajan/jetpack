@@ -21,18 +21,20 @@ class Engage extends Promise {
             start:undefined,
             end:undefined,
             error:undefined,
-            result:undefined
+            result:undefined,
+            msg:{}
         };
 
         const desc = jet.obj.map(_priv, (v,k)=>({enumerable, get:_=>_priv[k]}));
 
         desc.state = { enumerable, get:_=> (parent && parent.is("pending") && _priv.state === "pending") ? "waiting" : _priv.state }
+        desc.msg = { enumerable, get:_=>jet.str.to(_priv.msg[this.state], this) }
+
         desc.start = { enumerable, get:_=>
             !parent ? _priv.create : 
             parent.is("pending") ? undefined : 
             parent.end > _priv.create ? parent.end : _priv.create
         }
-
         desc.timein = { enumerable, get:_=>this.start ? Math.max(0, jet.get("date", _priv.end)-this.start) : 0};
 
         super((resolve, reject)=>{
@@ -84,6 +86,11 @@ class Engage extends Promise {
                 const exe = _=>jet.run(this.is("result") ? onresolve : onreject, child);
                 return child = new Engage(_then(exe, exe), timeout, this);
             },
+            echo:(state, msg)=>{
+                if (jet.is("object", state)) { jet.obj.map(state, (v,k)=>this.echo(k,v)); }
+                else if (Engage.states.includes(state)) { _priv.msg[state] = msg; }
+                return this;
+            }
         });
     }
 }
