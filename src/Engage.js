@@ -1,5 +1,7 @@
 import jet from "./jet";
 
+let GID = 0;
+
 class Engage extends Promise {
 
     static $$jettype = Symbol("engage");
@@ -11,6 +13,7 @@ class Engage extends Promise {
 
         const enumerable = true
         const _priv = {
+            id:GID++,
             parent,
             timeout,
             state:"pending",
