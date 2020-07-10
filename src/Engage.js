@@ -10,8 +10,7 @@ class Engage extends Promise {
     static is(instance) { return instance && instance.$$jettype === Engage.$$jettype; }
 
     constructor(exe, timeout, parent) {
-        parent = parent !== this && Engage.is(parent);
-
+        parent = Engage.is(parent) ? parent : undefined;
         const enumerable = true
         const _priv = {
             id:GID++,
@@ -28,7 +27,9 @@ class Engage extends Promise {
 
         const desc = jet.obj.map(_priv, (v,k)=>({enumerable, get:_=>_priv[k]}));
 
-        desc.state = { enumerable, get:_=> (parent && parent.is("pending") && _priv.state === "pending") ? "waiting" : _priv.state }
+        desc.state = { enumerable, get:_=> {
+            return (parent && parent.is("pending") && _priv.state === "pending") ? "waiting" : _priv.state
+        } }
         desc.msg = { enumerable, get:_=>jet.str.to(_priv.msg[this.state], this) }
 
         desc.start = { enumerable, get:_=>
@@ -62,7 +63,7 @@ class Engage extends Promise {
             if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { this.break("timeout"); }} , 100); }
 
             if (jet.is("function", exe)) { return exe(status); }
-            if (jet.is("promise", exe) || Engage.is(exe)) { exe.then(status.resolve, status.throw); }
+            if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
             
         });
 
@@ -76,7 +77,7 @@ class Engage extends Promise {
             is:state=>this.state === state,
             catch:(oncatch, timeout)=>{
                 let child;
-                return child = new Engage(_catch(_=>oncatch(child)), timeout, this)
+                return child = new Engage(_catch(err=>oncatch(err, child)), timeout, this)
             },
             finally:(onfinally, timeout)=>{
                 let child;
@@ -84,7 +85,7 @@ class Engage extends Promise {
             },
             then:(onresolve, onreject, timeout)=>{
                 let child;
-                const exe = _=>jet.run(this.is("result") ? onresolve : onreject, child);
+                const exe = res=>jet.run(this.is("result") ? onresolve : onreject, res, child);
                 return child = new Engage(_then(exe, exe), timeout, this);
             },
             echo:(state, msg)=>{
@@ -93,6 +94,7 @@ class Engage extends Promise {
                 return this;
             }
         });
+
     }
 }
 
