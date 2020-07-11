@@ -6,6 +6,8 @@ class AmountError extends Error {
 
 class Amount {
 
+    static is(instance) { return instance instanceof Amount; }
+
     static validateUnit(unit, force) {
         if (jet.temp.amount.conv[unit]) { return unit; }
         if (force) { return ""; }

@@ -22,20 +22,24 @@ export default {
     indexOf: function(obj, val) { if (obj.indexOf) {return obj.indexOf(val);} for (let i in obj) {if (obj[i] === val) {return i;}}},
     get: function(obj, path, def) {
         const pa = jet.str.to(path, ".").split(".");
-        for (let p of pa) {if (obj == null || !jet.is("object", obj, true)) {return def;}; obj = obj[p];}
+        for (let p of pa) {if (obj == null || !jet.isMapable(obj)) {return def;}; obj = jet.key.get(obj, p);}
         return obj;
     },
-    getForSet(obj, key) {
-        return jet.is("object", obj, true) ? obj : isNaN(Number(key)) ? {} : [];
+    getForKey(obj, key) {
+        return jet.isMapable(obj) ? obj : isNaN(Number(key)) ? {} : [];
     },
     set: function(obj, path, val, force) {
-        const pa = jet.str.to(path, ".").split(".");
-        const r = obj = jet.obj.getForSet(obj, pa[0]);
+        force = jet.get("boolean", force, true);
+        const pa = jet.str.to(path, ".").split("."), pb = [];
+        const r = obj = jet.obj.getForKey(obj, pa[0]);
         for (let [i, p] of pa.entries()) {
-            let blank = obj[p] == null, last = i === pa.length-1;
-            if (!force && blank !== last) {return false;}
-            obj = obj[p] = last ? val : jet.obj.getForSet(obj[p], pa[i+1]);
+            if (val == null) { pb[pa.length-1-i] = [obj, p]; } //backpath
+            if (!force && obj[p] != null && !jet.isMapable(obj[p])) { return r; }
+            else if (i !== pa.length-1) { obj = jet.key.set(obj, p, jet.obj.getForKey(obj[p], pa[i+1]));}
+            else if (val == null) { jet.key.rem(obj, p); }
+            else { jet.key.set(obj, p, val); }
         };
+        for (let [obj, p] of pb) { if (jet.isEmpty(obj[p])) { jet.key.rem(obj, p); } };
         return r;
     },
     map: function(obj, fce, deep, path) {
@@ -49,7 +53,8 @@ export default {
             path[level] = key;
             const pkey = path.join(".");
             val = (deep && jet.isMapable(val)) ? deep(jet.obj.map(val, fce, deep, pkey), pkey) : fce(val, pkey);
-            if (val !== undefined) { jet.key.set(obj, key, val); } else { jet.key.rem(obj, key); } //aftermath
+            jet.key.rem(obj, key);
+            if (val !== undefined) { jet.key.set(obj, key, val); } //aftermath
         };
         
         return obj;

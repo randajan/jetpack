@@ -32,9 +32,8 @@ const jet = {
     isMapable:function(any) {const t = temp.type.index[jet.type(any)]; return !!(t && t.map);},
     isFull:function(any) {
         const type = jet.type(any);
-        if (type === "array") { return !!any.length; }
         const map = jet.key.map(any);
-        if (map) { for (let i of map) {return true;} return false; }
+        if (map) { for (let [k,v] of map) { if (v != null) { return true; }} return false; }
         return type === "boolean" || any === 0 || !!any;
     },
     isEmpty:function(any) {return !jet.isFull(any);},
