@@ -66,7 +66,7 @@ class Amount {
 
         list.add(unit);
         list.add(parent);
-        jet.temp.amount.match = "("+jet.obj.melt(list, "|")+")(?=[^a-zA-z])?";
+        jet.temp.amount.match = "("+jet.obj.melt(Array.from(list).sort((a,b)=>b.length-a.length), "|")+")(?=[^a-zA-z])?";
 
         return true;
     }
