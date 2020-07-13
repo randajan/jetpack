@@ -90,6 +90,7 @@ class Engage extends Promise {
             },
             echo:(state, msg)=>{
                 if (jet.is("object", state)) { jet.obj.map(state, (v,k)=>this.echo(k,v)); }
+                else if (jet.is("function", state)) {Engage.states.map(k=>this.echo(k, state)); }
                 else if (Engage.states.includes(state)) { _priv.msg[state] = msg; }
                 return this;
             }
