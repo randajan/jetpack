@@ -110,9 +110,8 @@ export default {
     merge:function(...objs) { return jet.obj.expand(jet.obj.reduce(...objs)); },
     clone: function(obj, deep) { return jet.obj.map(obj, _=>_, deep); },
     fromJSON: function(json, throwErr) {
-        let out;
-        try { out = JSON.parse(json); } catch(e) { if (throwErr === true) { throw e } }
-        return jet.filter("mapable", out);
+        if (jet.is("mapable", json)) { return json; }
+        try { return JSON.parse(json); } catch(e) { if (throwErr === true) { throw e } }
     },
     toJSON:function(obj, prettyPrint) {
         const spacing = jet.get("number", prettyPrint === true ? 2 : prettyPrint);
