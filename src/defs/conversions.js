@@ -17,8 +17,8 @@ jet.to.define("string", {
     array:(str, comma)=>str.split(comma),
     number:(str, strict)=>Number(strict ? str : ((str.match(jet.temp.regex.num) || []).join("")).replace(",", ".")),
     object:str=>jet.obj.fromJSON(str),
-    promise:str=>new Promise(ok=>ok(str)),
-    engage:str=>new jet.Engage(s=>s.result(str)),
+    promise:async str=>str,
+    engage:async str=>str,
     error:str=>new Error(str),
     amount:(val, ...args)=>new jet.Amount(val, ...args)
 });
@@ -27,8 +27,8 @@ jet.to.define("number", {
     function:num=>_=>num,
     boolean:num=>!!num,
     array:(num, comma)=>comma?[num]:Array(num),
-    promise:num=>new Promise(ok=>ok(num)),
-    engage:num=>new jet.Engage(s=>s.result(num)),
+    promise:async num=>num,
+    engage:async num=>num,
     error:num=>new Error(num),
     amount:(val, ...args)=>new jet.Amount(val, ...args),
 });
@@ -40,8 +40,8 @@ jet.to.define("object", {
     number:obj=>Object.values(obj),
     array:obj=>Object.values(obj),
     string:obj=>jet.obj.toJSON(obj),
-    promise:obj=>new Promise(ok=>ok(obj)),
-    engage:obj=>new jet.Engage(s=>s.result(obj)),
+    promise:async obj=>obj,
+    engage:async obj=>obj,
     error:obj=>new Error(jet.obj.toJSON(obj)),
     regexp:(obj,comma)=>jet.obj.melt(obj, comma != null ? comma : "|")
 });
@@ -52,8 +52,8 @@ jet.to.define("array", {
     number:arr=>arr.length,
     string:(arr, comma)=>arr.melt(comma),
     object:arr=>Object.assign({}, arr),
-    promise:arr=>new Promise(ok=>ok(arr)),
-    engage:arr=>new jet.Engage(s=>s.result(arr)),
+    promise: async arr=>arr,
+    engage: async arr=>arr,
     error:(arr, comma)=>arr.melt(comma != null ? comma : " "),
     regexp:(arr, comma)=>arr.melt(comma != null ? comma : "|")
 });
@@ -63,13 +63,17 @@ jet.to.define("set", {
     function:set=>_=>set,
     boolean:set=>jet.isFull(set),
     object:set=>jet.obj.merge(set),
-    promise:set=>new Promise(ok=>ok(set)),
-    engage:set=>new jet.Engage(s=>s.result(set)),
+    promise:async set=>set,
+    engage:async set=>set,
 });
 
 jet.to.define("promise", {
     engage:(prom, timeout)=>new jet.Engage(prom, timeout)
 })
 
-jet.to.define("function", (fce, ...args)=>fce(...args));
+jet.to.define("function", {
+    "*":(fce, ...args)=>fce(...args),
+    promise:async (fce, ...args)=>await fce(...args),
+    engage:async (fce, ...args)=>await fce(...args)
+});
 jet.to.define("nan", _=>undefined);

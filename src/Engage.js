@@ -54,13 +54,13 @@ class Engage extends Promise {
                 return true;
             } }
 
-            desc.cancel = { value:_=>this.break("cancel") }
-            desc.throw = { value:error=>this.break("error", error) }
-            desc.resolve = { value:result=>this.break("result", result) }
+            desc.cancel = { value:_=>status.break("cancel") }
+            desc.throw = { value:error=>status.break("error", error) }
+            desc.resolve = { value:result=>status.break("result", result) }
             
             const status = Object.defineProperties({}, desc);
 
-            if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { this.break("timeout"); }} , 100); }
+            if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { status.break("timeout"); }} , 100); }
 
             if (jet.is("function", exe)) { return exe(status); }
             if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
