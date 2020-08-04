@@ -5,7 +5,7 @@ let GID = 0;
 class Engage extends Promise {
 
     static $$jettype = Symbol("engage");
-    static states = ["waiting", "pending", "result", "error", "cancel", "timeout"];
+    static states = ["waiting", "running", "result", "error", "cancel", "timeout"];
 
     static is(instance) { return instance && instance.$$jettype === Engage.$$jettype; }
 
@@ -16,7 +16,8 @@ class Engage extends Promise {
             id:GID++,
             parent,
             timeout,
-            state:"pending",
+            pending:true,
+            state:"running",
             create:new Date(),
             start:undefined,
             end:undefined,
@@ -28,13 +29,13 @@ class Engage extends Promise {
         const desc = jet.obj.map(_priv, (v,k)=>({enumerable, get:_=>_priv[k]}));
 
         desc.state = { enumerable, get:_=> {
-            return (parent && parent.is("pending") && _priv.state === "pending") ? "waiting" : _priv.state
+            return (parent && parent.pending && _priv.pending) ? "waiting" : _priv.state
         } }
         desc.msg = { enumerable, get:_=>jet.str.to(_priv.msg[this.state], this) }
 
         desc.start = { enumerable, get:_=>
             !parent ? _priv.create : 
-            parent.is("pending") ? undefined : 
+            parent.pending ? undefined : 
             parent.end > _priv.create ? parent.end : _priv.create
         }
         desc.timein = { enumerable, get:_=>this.start ? Math.max(0, jet.get("date", _priv.end)-this.start) : 0};
@@ -43,8 +44,9 @@ class Engage extends Promise {
             let tid;
 
             desc.break = { value:(state, data)=>{
-                if (_priv.state !== "pending") { return false; }
+                if (!_priv.pending) { return false; }
                 if (!Engage.states.includes(state)) { return false; }
+                _priv.pending = false;
                 _priv.state = state;
                 _priv.end = new Date();
                 clearInterval(tid);
@@ -71,17 +73,15 @@ class Engage extends Promise {
         Object.defineProperties(this, desc);
 
         const _then = this.then.bind(this);
-        const _finally = this.finally.bind(this);
-        const _catch = this.catch.bind(this);
         jet.obj.addProperty(this, {
             is:state=>this.state === state,
             catch:(oncatch, timeout)=>{
                 let child;
-                return child = new Engage(_catch(err=>oncatch(err, child)), timeout, this)
+                return child = new Engage(_then(undefined, err=>oncatch(err, child)), timeout);
             },
             finally:(onfinally, timeout)=>{
                 let child;
-                return child = new Engage(_finally(_=>onfinally(child)), timeout, this)
+                return child = new Engage(_then(_=>onfinally(child), _=>onfinally(child)), timeout, this);
             },
             then:(onresolve, onreject, timeout)=>{
                 let child;
