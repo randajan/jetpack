@@ -73,10 +73,15 @@ class RunPool extends Pool {
     }
 
     fit(...args) {
-        for (let i = 0; i<this.length; i++) {
-            args[0] = this[i](...this.with, ...args);
-        }
-        return args[0];
+        let i = 0; args = [...this.with, ...args];
+
+        const next = (...a)=>{
+            const k = i++, l = a.length; 
+            a = a.concat(args); a.splice(l, l);
+            return this[k] ? this[k](next, ...a) : a[0];
+        };
+
+        return next();
     }
 
     classify(item) {
