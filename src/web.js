@@ -5,6 +5,8 @@ const D = document;
 const B = D.body;
 const H = D.documentElement;
 
+const RECTVAR = ["width", "height", "left", "top", "bottom", "right"];
+
 export default {
     getParent(ele) {
         return jet.is("element", ele) ? ele.parentElement || ele.parentNode : undefined;
@@ -23,13 +25,9 @@ export default {
     },
     getBound(ele) {
         if (!jet.web.getParent(ele)) { return {}}
-        const bound = ele.getBoundingClientRect(); 
-        const scroll = jet.web.getScroll();
-        return {
-            top:bound.top+scroll.top,
-            left:bound.left+scroll.left,
-            width:bound.width,
-            height:bound.height
-        }
+        const rect = ele.getBoundingClientRect(); 
+        const bound = {};
+        RECTVAR.map(k=>jet.obj.addProperty(bound, k, rect[k], false, true));
+        return bound;
     }
 };
