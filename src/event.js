@@ -35,7 +35,7 @@ export default {
         
         let _b, parent;
         const bound = Object.defineProperties({}, {
-            time:{enumerable, get:_=>new Date()-_b.pickTime},
+            time:{enumerable, get:_=>(_b.stopTime || new Date())-_b.startTime},
             x:{enumerable, get:_=>_b.x, set:v=>_b.x=jet.num.to(v)},
             y:{enumerable, get:_=>_b.y, set:v=>_b.y=jet.num.to(v)},
             relX:{enumerable, get:_=>_b.x/_b.parent.width, set:v=>_b.x=jet.num.to(v)*_b.parent.width},
@@ -62,7 +62,7 @@ export default {
             const pos = jet.obj.get(ev, "changedTouches.0", ev) || { clientX:_b.left, clientY:_b.top };
             
             if (init) {
-                _b.pickTime = new Date();
+                _b.startTime = new Date();
                 _b.pickX = (_b.width/2 - (pos.clientX-_b.left)) || 0;
                 _b.pickY = (_b.height/2 - (pos.clientY-_b.top)) || 0;
             }
@@ -72,6 +72,7 @@ export default {
             _b.y = (pos.clientY - pb.top + _b.pickY) || 0;
 
             if (init) { _b.prevX = _b.startX = _b.x; _b.prevY = _b.startY = _b.y; }
+            if (state === "stop") { _b.stopTime = new Date(); }
             if (state !== "move") { DRAG.evlist.map(ev=>jet.event.listen(state === "start", D, ev, move)); }
 
             onDrag(ev, bound);
