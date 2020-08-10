@@ -72,10 +72,10 @@ export default {
             _b.y = (pos.clientY - pb.top + _b.pickY) || 0;
 
             if (init) { _b.prevX = _b.startX = _b.x; _b.prevY = _b.startY = _b.y; }
-            else {jet.event.stop(ev);}
             if (state === "stop") { _b.stopTime = new Date(); }
             if (state !== "move") { DRAG.evlist.map(ev=>jet.event.listen(state === "start", D, ev, move, {pasive:false})); }
-
+            else { jet.event.stop(ev); }
+            
             onDrag(ev, bound);
             _b.prevX = _b.x; _b.prevY = _b.y;
         };
