@@ -74,13 +74,13 @@ export default {
             if (init) { _b.prevX = _b.startX = _b.x; _b.prevY = _b.startY = _b.y; }
             else {jet.event.stop(ev);}
             if (state === "stop") { _b.stopTime = new Date(); }
-            if (state !== "move") { DRAG.evlist.map(ev=>jet.event.listen(state === "start", D, ev, move)); }
+            if (state !== "move") { DRAG.evlist.map(ev=>jet.event.listen(state === "start", D, ev, move, {pasive:false})); }
 
             onDrag(ev, bound);
             _b.prevX = _b.x; _b.prevY = _b.y;
         };
 
-        const cleanUp = ["mousedown", "touchstart"].map(k=>jet.event.hear(ele, k, move, {pasive:false}));
+        const cleanUp = ["mousedown", "touchstart"].map(k=>jet.event.hear(ele, k, move, {pasive:true}));
         move();
         return _=>jet.run(cleanUp);
     },
