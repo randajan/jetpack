@@ -55,7 +55,7 @@ export default {
             const init = (state === "start" || state === "init");
 
             if (init) { parent = jet.web.getParent(ele); }
-            if (!parent) { return; }
+            if (!parent || (ev && ev.target !== ele)) { return; }
             if (init) { _b = jet.web.getBound(ele); }
 
             const pb = _b.parent = jet.web.getBound(parent);
