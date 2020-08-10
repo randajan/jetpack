@@ -72,6 +72,7 @@ export default {
             _b.y = (pos.clientY - pb.top + _b.pickY) || 0;
 
             if (init) { _b.prevX = _b.startX = _b.x; _b.prevY = _b.startY = _b.y; }
+            else {jet.event.stop(ev);}
             if (state === "stop") { _b.stopTime = new Date(); }
             if (state !== "move") { DRAG.evlist.map(ev=>jet.event.listen(state === "start", D, ev, move)); }
 
@@ -94,17 +95,15 @@ export default {
         set(jet.num.to(initX), jet.num.to(initY));
 
         return jet.event.listenDrag(ele, (ev, bound)=>{
-            jet.event.stop(ev);
             onShift(ev, bound);
             set(absolute ? bound.x : bound.relX, absolute ? bound.y : bound.relY);
         }, true)
     },
     listenSwipe(ele, onSwipe, allowDir, minDist, maxTime) {
-        [onSwipe, minDist, maxTime] = jet.get([["function", onSwipe], ["number", minDist, 150], ["number", maxTime, 500]]);
+        [onSwipe, minDist, maxTime] = jet.get([["function", onSwipe], ["number", minDist, 50], ["number", maxTime, 500]]);
         allowDir = jet.arr.wrap(allowDir);
         return jet.event.listenDrag(ele, (ev, bound)=>{
             const { state, time, dist, dir } = bound;
-            jet.event.stop(ev);
             if (state !== "stop" || time > maxTime || dist < minDist || (allowDir.length && !allowDir.includes(dir))) { return; }
             onSwipe(ev, bound);
         });
