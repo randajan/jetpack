@@ -64,9 +64,10 @@ class Engage extends Promise {
 
             if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { status.break("timeout"); }} , 100); }
 
-            if (jet.is("function", exe)) { return exe(status); }
-            if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
-            
+            if (jet.is("function", exe)) { exe(status); }
+            else if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
+            else { status.resolve(exe); }
+
         });
 
         jet.obj.addProperty(this, "$$jettype", Engage.$$jettype);
