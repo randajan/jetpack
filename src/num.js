@@ -11,10 +11,10 @@ export default {
     },
     frame: function (num, min, max) { var r = Math.min(num, jet.filter("number", max, num)); return Math.max(r, jet.filter("number", min, r)); },
     round: function (num, dec, kind) { const k = Math.pow(10, dec || 0); return Math[kind == null ? "round" : kind ? "ceil" : "floor"](num * k) / k; },
-    length: function (num, bol) { var b = bol, s = String(num), l = s.length, i = s.indexOf("."), p = (i >= 0); return (b === false ? (p ? l - i - 1 : 0) : ((!p || !b) ? l : i)); },
+    length: function (num, bol) { var b = bol, s = jet.str.to(num), l = s.length, i = s.indexOf("."), p = (i >= 0); return (b === false ? (p ? l - i - 1 : 0) : ((!p || !b) ? l : i)); },
     period: function (val, min, max) { var m = max - min; return (m + (val - min) % m) % m + min; },
-    toRatio: function (num, min, max) { var x = Number(num), n = Number(min || 0), t = Number(max || 100) - n; return (x - n) / t; },
-    fromRatio: function (num, min, max) { var x = Number(num), n = Number(min || 0), t = Number(max || 100) - n; return x * t + n; },
+    toRatio: function (num, min, max) { const n = jet.num.to(min), m = jet.num.to(max) - n; return (jet.num.to(num) - n) / m; },
+    fromRatio: function (num, min, max) { const n = jet.num.to(min), m = jet.num.to(max) - n; return jet.num.to(num) * m + n; },
     zoomIn: function (...nums) {
         const zoom = Math.pow(10, Math.max(...nums.map(num => jet.num.length(num, false))));
         return jet.obj.addProperty(nums.map(num => Math.round(num * zoom)), "zoom", zoom);
