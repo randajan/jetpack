@@ -27,6 +27,7 @@ export default {
         var r = ni ? v - n : m - v; v = (r % s) ? ((ni ? n : m) + (jet.num.round(r / s, 0, c == null ? null : c === ni) * s * (ni * 2 - 1))) : v; //snap
         return (f ? (jet.num.frame(v, n, m)) : v); //frame
     },
+    whatpow: function(num, base) { return Math.log(jet.num.to(num))/Math.log(jet.num.to(base)); },
     toHex: function (num) { var r = Number(Math.round(num)).toString(16); return r.length === 1 ? "0" + r : r; },
     toLetter: function(num, letters) {
         letters = jet.get("string", letters) || "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
