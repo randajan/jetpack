@@ -65,7 +65,6 @@ export default {
                 _b.startTime = new Date();
                 _b.pickX = centerpick ? 0 : (_b.width/2 - (pos.clientX-_b.left)) || 0;
                 _b.pickY = centerpick ? 0 : (_b.height/2 - (pos.clientY-_b.top)) || 0;
-                console.log(_b.pickX, _b.pickY);
             }
 
             _b.state = state;
