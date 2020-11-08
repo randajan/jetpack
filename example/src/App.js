@@ -5,18 +5,16 @@ import jet from '@randajan/jetpack';
 window.jet = jet;
 
 
-setTimeout(_=>jet.event.listenSwipe(document.getElementById("x4"), (ev, bound)=>{
+setTimeout(_=>jet.event.listenShift(document.getElementById("x4"), (ev, bound)=>{
+  console.log(bound.relX, bound.relY);
+  //console.log(bound.dir, bound.time, bound.dist);
+  //alert([bound.dir, bound.time, bound.dist].joins(", "))
+  if (bound.state === "stop") {
+    bound.relX = jet.num.snap(bound.relX, .25, 0, 1);
+    bound.relY = jet.num.snap(bound.relY, .25, 0, 1);
+  }
 
-  console.log(bound.dir, bound.time, bound.dist);
-  alert([bound.dir, bound.time, bound.dist].joins(", "))
-  // if (bound.state === "move") {
-
-  // } else {
-  //   bound.relX = jet.num.snap(bound.relX, .25, 0, 1);
-  //   bound.relY = jet.num.snap(bound.relY, .25, 0, 1);
-  // }
-
-}), 1000);
+}, true, .25, .25), 1000);
 
 export default class App extends Component {
   render () {

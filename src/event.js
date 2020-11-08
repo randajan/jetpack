@@ -30,10 +30,10 @@ export default {
     hear(ele, type, handler, opt) { return jet.event.listen(true, ele, type, handler, opt); },
     deaf(ele, type, handler, opt) { return jet.event.listen(false, ele, type, handler, opt); },
 
-    listenDrag(ele, onDrag) {
+    listenDrag(ele, onDrag, centerpick) {
         [ele, onDrag] = jet.get([["element", ele], ["function", onDrag]]);
         
-        let _b, parent;
+        let _b, parent = jet.web.getParent(ele);
         const bound = Object.defineProperties({}, {
             time:{enumerable, get:_=>(_b.stopTime || new Date())-_b.startTime},
             x:{enumerable, get:_=>_b.x, set:v=>_b.x=jet.num.to(v)},
@@ -51,25 +51,26 @@ export default {
         DRAG.bounds.map(k=>Object.defineProperty(bound, k, {enumerable, get:_=>_b[k]}));
 
         function move(ev) {
+            if (!parent) { return; }
             const state = ev ? DRAG.evmap[ev.type] : "init";
             const init = (state === "start" || state === "init");
 
-            if (init) { parent = jet.web.getParent(ele); }
-            if (!parent) { return; }
-            if (init) { _b = jet.web.getBound(ele); }
+            if (init) { 
+                _b = jet.web.getBound(ele);
+                _b.parent = jet.web.getBound(parent);
+            }
+            const pos = jet.obj.get(ev, "changedTouches.0", ev) || { clientX:_b.left+_b.width/2, clientY:_b.top+_b.height/2 };
 
-            const pb = _b.parent = jet.web.getBound(parent);
-            const pos = jet.obj.get(ev, "changedTouches.0", ev) || { clientX:_b.left, clientY:_b.top };
-            
             if (init) {
                 _b.startTime = new Date();
-                _b.pickX = (_b.width/2 - (pos.clientX-_b.left)) || 0;
-                _b.pickY = (_b.height/2 - (pos.clientY-_b.top)) || 0;
+                _b.pickX = centerpick ? 0 : (_b.width/2 - (pos.clientX-_b.left)) || 0;
+                _b.pickY = centerpick ? 0 : (_b.height/2 - (pos.clientY-_b.top)) || 0;
+                console.log(_b.pickX, _b.pickY);
             }
 
             _b.state = state;
-            _b.x = (pos.clientX - pb.left + _b.pickX) || 0;
-            _b.y = (pos.clientY - pb.top + _b.pickY) || 0;
+            _b.x = (pos.clientX - _b.parent.left + _b.pickX) || 0;
+            _b.y = (pos.clientY - _b.parent.top + _b.pickY) || 0;
 
             if (init) { _b.prevX = _b.startX = _b.x; _b.prevY = _b.startY = _b.y; }
             if (state === "stop") { _b.stopTime = new Date(); }
@@ -80,11 +81,15 @@ export default {
             _b.prevX = _b.x; _b.prevY = _b.y;
         };
 
-        const cleanUp = ["mousedown", "touchstart"].map(k=>jet.event.hear(ele, k, move, {pasive:true}));
+        const cleanUp = ["mousedown", "touchstart"].map(k=>[
+            jet.event.hear(ele, k, move, {pasive:true}),
+            centerpick ? jet.event.hear(parent, k, move, {pasive:true}) : null,
+        ]);
+
         move();
         return _=>jet.run(cleanUp);
     },
-    listenShift(ele, onShift, initX, initY, absolute) {
+    listenShift(ele, onShift, centerpick, initX, initY, absolute) {
         [ele, onShift] = jet.get([["element", ele], ["function", onShift]]);
 
         function set(x, y) {
@@ -97,7 +102,7 @@ export default {
         return jet.event.listenDrag(ele, (ev, bound)=>{
             onShift(ev, bound);
             set(absolute ? bound.x : bound.relX, absolute ? bound.y : bound.relY);
-        }, true)
+        }, centerpick)
     },
     listenSwipe(ele, onSwipe, allowDir, minDist, maxTime) {
         [onSwipe, minDist, maxTime] = jet.get([["function", onSwipe], ["number", minDist, 50], ["number", maxTime, 500]]);

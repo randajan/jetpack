@@ -12,6 +12,7 @@ import web from "./web";
 import event from "./event";
 import Amount from "./Amount";
 import Engage from "./Engage";
+import Ticker from "./Ticker";
 
 const jet = {
     type:function(any, all) {
@@ -94,6 +95,7 @@ const jet = {
     event,
     Amount,
     Engage,
+    Ticker,
     ...zoo
 };
 
