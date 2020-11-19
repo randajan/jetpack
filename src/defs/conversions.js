@@ -13,7 +13,7 @@ jet.to.define = function(from, to, execute) {
 
 jet.to.define("string", {
     function:str=>_=>str,
-    boolean:str=>str.lower() === "true",
+    boolean:str=>!["0", "false", "null", "undefined", "NaN"].includes(str.lower()),
     array:(str, comma)=>str.split(comma),
     number:(str, strict)=>Number(strict ? str : ((str.match(jet.temp.regex.num) || []).join("")).replace(",", ".")),
     object:str=>jet.obj.fromJSON(str),
