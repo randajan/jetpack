@@ -43,7 +43,7 @@ class Amount {
             aval = jet.temp.amount.conv[aunit][unit](aval);
             aunit = unit;
         }
-        if (dec) { aval = jet.num.round(aval, dec); }
+        if (jet.is("number", dec)) { aval = jet.num.round(aval, dec); }
         return full ? [aval, aunit] : aval
     }
     
@@ -79,7 +79,7 @@ class Amount {
         const parent = (jet.is(Amount, val) && Amount.validatePair(unit, val.unit)) ? val : null;
         [ val, unit ] = Amount.fetch(val, unit, dec, true);
 
-        if (dec) { this.dec = dec; }
+        this.dec = dec;
         jet.obj.addProperty(this, "unit", unit);
 
         Object.defineProperties(this, {
