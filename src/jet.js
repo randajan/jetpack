@@ -100,3 +100,6 @@ const jet = {
 };
 
 export default jet;
+export {
+    jet2
+}

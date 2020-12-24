@@ -1,20 +1,21 @@
 import React, { Component } from 'react'
 
-import jet from '@randajan/jetpack';
+import jet, { jet2 } from '@randajan/jetpack';
 
 window.jet = jet;
+window.jet2 = jet2;
 
 
-setTimeout(_=>jet.event.listenShift(document.getElementById("x4"), (ev, bound)=>{
-  console.log(bound.relX, bound.relY);
-  //console.log(bound.dir, bound.time, bound.dist);
-  //alert([bound.dir, bound.time, bound.dist].joins(", "))
-  if (bound.state === "stop") {
-    bound.relX = jet.num.snap(bound.relX, .25, 0, 1);
-    bound.relY = jet.num.snap(bound.relY, .25, 0, 1);
-  }
+// setTimeout(_=>jet.event.listenShift(document.getElementById("x4"), (ev, bound)=>{
+//   console.log(bound.relX, bound.relY);
+//   //console.log(bound.dir, bound.time, bound.dist);
+//   //alert([bound.dir, bound.time, bound.dist].joins(", "))
+//   if (bound.state === "stop") {
+//     bound.relX = jet.num.snap(bound.relX, .25, 0, 1);
+//     bound.relY = jet.num.snap(bound.relY, .25, 0, 1);
+//   }
 
-}, true, .25, .25), 1000);
+// }, true, .25, .25), 1000);
 
 export default class App extends Component {
   render () {
