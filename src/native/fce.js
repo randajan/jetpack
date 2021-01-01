@@ -1,25 +1,12 @@
-import jet from "./jet";
-
+import jet from "../jet";
 
 export default {
-    byteCount(obj, cap) {
-        const list = [];
-        let s, sum = new jet.Amount(0, "kB", 2);
-        cap = new jet.Amount(cap, "kB");
-        jet.obj.map(obj, (v,p)=>{
-            if (v != null) {
-                sum.val += s = (p.split(".").pop().length+v.length)*2/1024;
-                list.push([p, new jet.Amount(s, "kB", 2).toString()]);
-            }
-            return v;
-        }, true);
-        return {load:(sum/cap)+"%", sum:sum.toString(), cap:cap.toString(), list:list.sort((r1, r2)=>r2[1]-r1[1])};
+    run:function(any, ...args) {
+        if (jet.fce.is(any)) { return any(...args); }
+        return jet.map.it(any, f=>jet.fce.run(f, ...args));
     },
-
-    measurePerformance: function(fces, args, repeat) {
-        const rep = repeat || 100,
-            ladder = [],
-            statis = {};
+    measure:function(fces, args, repeat) {
+        const rep = repeat || 100, ladder = [], statis = {};
             
         for (var i=1; i<=rep; i++) { 
             for (let fce of fces) {
@@ -51,5 +38,4 @@ export default {
     
         return {repeated:rep, ladder}
     }
-
 }

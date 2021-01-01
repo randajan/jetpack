@@ -1,7 +1,6 @@
-import jet from "./jet";
+import jet from "../jet";
 
 let GID = 0;
-
 
 class Ticker {
     static $$jettype = Symbol("ticker");
@@ -45,7 +44,7 @@ class Ticker {
 
         desc.cancel = { value:_=>next(_priv.tick, true) }
 
-        jet.obj.addProperty(this, "$$jettype", Ticker.$$jettype);
+        jet.obj.prop.add(this, "$$jettype", Ticker.$$jettype);
         Object.defineProperties(this, desc);
         console.log(ticks);
         _priv.start = new Date();

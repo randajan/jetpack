@@ -1,4 +1,4 @@
-import jet from "./jet";
+import jet from "../jet";
 
 let GID = 0;
 
@@ -18,7 +18,7 @@ class Engage extends Promise {
             timeout,
             pending:true,
             state:"running",
-            create:new Date(),
+            create:jet.date(),
             start:undefined,
             end:undefined,
             error:undefined,
@@ -26,7 +26,7 @@ class Engage extends Promise {
             msg:{}
         };
 
-        const desc = jet.obj.map(_priv, (v,k)=>({enumerable, get:_=>_priv[k]}));
+        const desc = jet.map.of(_priv, (v,k)=>({enumerable, get:_=>_priv[k]}));
 
         desc.state = { enumerable, get:_=> {
             return (parent && parent.pending && _priv.pending) ? "waiting" : _priv.state
@@ -38,7 +38,7 @@ class Engage extends Promise {
             parent.pending ? undefined : 
             parent.end > _priv.create ? parent.end : _priv.create
         }
-        desc.timein = { enumerable, get:_=>this.start ? Math.max(0, jet.get("date", _priv.end)-this.start) : 0};
+        desc.timein = { enumerable, get:_=>this.start ? Math.max(0, jet.date.tap(_priv.end)-this.start) : 0};
 
         super((resolve, reject)=>{
             let tid;
@@ -48,7 +48,7 @@ class Engage extends Promise {
                 if (!Engage.states.includes(state)) { return false; }
                 _priv.pending = false;
                 _priv.state = state;
-                _priv.end = new Date();
+                _priv.end = jet.date();
                 clearInterval(tid);
                 if (state === "result") { _priv[state] = data; resolve(data); }
                 else if (state === "error") { _priv[state] = data; reject(data); }
@@ -64,17 +64,17 @@ class Engage extends Promise {
 
             if (timeout) { tid = setInterval(_=>{if (status.timein > status.timeout) { status.break("timeout"); }} , 100); }
 
-            if (jet.is("function", exe)) { exe(status); }
-            else if (jet.is("promise", exe)) { exe.then(status.resolve, status.throw); }
+            if (jet.fce.is(exe)) { exe(status); }
+            else if (jet.prom.is(exe)) { exe.then(status.resolve, status.throw); }
             else { status.resolve(exe); }
 
         });
 
-        jet.obj.addProperty(this, "$$jettype", Engage.$$jettype);
+        jet.obj.prop.add(this, "$$jettype", Engage.$$jettype);
         Object.defineProperties(this, desc);
 
         const _then = this.then.bind(this);
-        jet.obj.addProperty(this, {
+        jet.obj.prop.add(this, {
             is:state=>this.state === state,
             catch:(oncatch, timeout)=>{
                 let child;
@@ -90,8 +90,8 @@ class Engage extends Promise {
                 return child = new Engage(_then(exe, exe), timeout, this);
             },
             echo:(state, msg)=>{
-                if (jet.is("object", state)) { jet.obj.map(state, (v,k)=>this.echo(k,v)); }
-                else if (jet.is("function", state)) {Engage.states.map(k=>this.echo(k, state)); }
+                if (jet.obj.is(state)) { jet.map.it(state, (v,k)=>this.echo(k,v)); }
+                else if (jet.fce.is(state)) {Engage.states.map(k=>this.echo(k, state)); }
                 else if (Engage.states.includes(state)) { _priv.msg[state] = msg; }
                 return this;
             }

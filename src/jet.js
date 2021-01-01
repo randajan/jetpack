@@ -1,105 +1,155 @@
-import temp from "./temp";
-import num from "./num";
-import str from "./str";
-import color from "./color";
-import time from "./time";
-import obj from "./obj";
-import arr from "./arr";
-import rnd from "./rnd";
-import test from "./test";
-import zoo from "./zoo";
-import web from "./web";
-import event from "./event";
-import Amount from "./Amount";
-import Engage from "./Engage";
-import Ticker from "./Ticker";
+import Complex from "./custom/Complex";
 
-const jet = {
-    type:function(any, all) {
-        const td = typeof any, r = all ? [] : undefined; if (any == null) { return r; }
-        for (let type of temp.type.list) {
-            if (!type.is || !type.is(any, td)) { continue; }
-            if (r) { r.push(type.name) } else { return type.name; }
-        }
-        if (!r) { return td; } else { r.push(td); return r; }
-    },
-    to:function(type, any, ...args) {
-        const typeFrom = jet.type(any), from = temp.type.index[typeFrom];
-        if (type === typeFrom) { return any; }
-        if (!from) { return jet.create(type); }
-        const exe = from.conv[type] || from.conv["*"]; 
-        return exe ? jet.to(type, exe(any, ...args), ...args) : jet.create(type, any);
-    },
-    isMapable:function(any) {const t = temp.type.index[jet.type(any)]; return !!(t && t.map);},
-    isFull:function(any) {
-        const type = jet.type(any);
-        const map = jet.key.map(any);
-        if (map) { for (let [k,v] of map) { if (v != null) { return true; }} return false; }
-        return type === "boolean" || any === 0 || !!any;
-    },
-    isEmpty:function(any) {return !jet.isFull(any);},
-    is:function(type, any, inclusive) {
-        const t = typeof type;
-        if (t === "function" || t === "object") {return any instanceof type;} //is instance comparing
-        if (type === "mapable") {return jet.isMapable(any);}
-        if (type === "empty") {return jet.isEmpty(any);}
-        if (type === "full") {return jet.isFull(any);}
-        return inclusive ? jet.type(any, true).includes(type) : type === jet.type(any);
-    },
-    create:function(type, ...args) {const t = temp.type.index[type]; return (t && t.create) ? t.create(...args) : null;},
-    copy:function(any, ...args) {const t = temp.type.index[jet.type(any)]; return (t && t.copy) ? t.copy(any, ...args) : any},
-    factory:function(create, copy, type, ...args) {
-        const map = jet.key.map(type);
-        if (map) {
-            for (let [k,v] of map) {type[k] = jet.factory(create, copy, ...(jet.is("array", v) ? v : [v]));}
-            return type;
-        }
-        for (let v of args) {if (jet.is(type, v)) {return copy ? jet.copy(v) : v;}}
-        if (create) {return jet.create(type);}
-    },
-    filter:function(...args) {return jet.factory(false, false, ...args);},
-    get:function(...args) {return jet.factory(true, false, ...args);},
-    pull:function(...args) {return jet.factory(true, true, ...args);},
-    untie:function(args) {
-        args = jet.get("object", args);
-        const keys = Object.keys(args);
-        const first = args[keys[0]];
-        if (!jet.isMapable(first)) {return Object.values(args);}
-        const isArray = jet.is("array", first);
-        return keys.map((v,k)=>jet.isFull(first[isArray?k:v]) ? first[isArray?k:v] : k > 0 ? args[v] : undefined);
-    },
-    key:{
-        touch: function(op, any, key, val) {
-            const t = temp.type.index[jet.type(any)]; 
-            if (t && t[op]) {return t[op](any, key, val);}
+const jet = {};
+
+const superMethods = ["is", "to", "only", "full", "tap", "copy", "rnd"];
+
+function identify(any, all, withDefinition) {
+    const td = typeof any, wd = withDefinition, r = all ? [] : undefined; 
+    if (any == null) { return r; }
+    for (let type of jet.type.list) {
+        if (!type.is(any, td)) { continue; }
+        let n = wd ? type : type.name;
+        if (r) { r.push(n) } else { return n; }
+    }
+    if (wd) { return r; } else if (!r) { return td; } else { r.push(td); return r; }
+}
+
+//0 = only, 1 = full, 2 = tap, 3 = copy
+function factory(type, out, ...args) {
+    const t = jet.type.index[type]; if (!t) { return; }
+    for (let a of args) {
+        if (!t.is(a, typeof a) || (out === 1 && !t.full(a))) {continue;}
+        return out === 3 ? t.copy(a) : a;
+    }
+    if (out > 1) { return t.create(); }
+}
+
+function convert(type, any, ...args) {
+    const t = jet.type.index[type]; if (!t) { return; }
+    const at = jet.type.raw(any);
+    if (!at) { return t.create(); }
+    if (t.name === at.name) { return any; }
+    const exe = at.to[type] || at.to["*"]; 
+    return exe ? convert(type, exe(any, ...args), ...args) : t.create(any);
+}
+
+function conversion(from, to, exe) {
+    const type = jet.type.index;
+    const tt = jet.type(to);
+    if (!type[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
+    const conv = type[from].to;
+    if (tt === "arr") { for (let i in to) { conv[to[i]] = exe; } }
+    else if (tt === "obj") { for (let i in to) { conv[i] = to[i]; } }
+    else if (tt === "fce") { conv["*"] = to; }
+    else { conv[to] = exe; }
+}
+
+function expand(type, filter) {
+    const t = jet.type.index[type]; if (!t) { return; }
+    const p = t.constructor.prototype;
+    const c = jet[type];
+
+    for (let i in c) {
+        if (p[i] || superMethods.includes(i) || (filter && !filter.includes(i))) {continue;}
+        Object.defineProperty(p, i, {
+            enumerable:false,
+            writable:false,
+            value:typeof c[i] === "function" ? function(...a) { return c[i](this, ...a); } : c[i]
+        });
+    }
+}
+
+jet.type = new Complex(
+    (any, all)=>identify(any, all), 
+    {
+        list:[],
+        index:{},
+        all:any=>identify(any, true),
+        raw:any=>identify(any, false, true),
+        is:new Complex(
+            (name, any, inclusive)=>{
+                const t = typeof name;
+                if (t === "function" || t === "object") {return any instanceof name;} //is instance comparing
+                return inclusive ? jet.type.all(any).includes(name) : name === jet.type(any);
+            },
+            {
+                kin:(name, any)=>jet.type.is(name, any, true),
+                map:any=>{
+                    const t = jet.type.raw(any);
+                    return t ? !!t.pairs : false;
+                },
+                full:any=>{
+                    const t = jet.type.raw(any);
+                    return t ? t.full(any) : (any === false || any === 0 || !!any);
+                },
+            }
+        ),
+        define:(name, constructor, opt, custom)=>{
+            const { list, index } = jet.type;
+            let { rank, create, is, full, copy, rnd, keys, vals, pairs, get, set, rem} = (opt || {});
+
+            const err = "Jet type '" + name + "'";
+            if (index[name]) {throw new Error(err+" is allready defined!!!");}
+            if (jet[name]) {throw new Error(err+" is reserved!!!");}
+            if (!constructor) {throw new Error(err+" missing constructor!!!");}
+            if ((keys || vals || pairs) && !(keys && vals && pairs)) {throw new Error(err+" keys, vals or pairs missing!!!");}
+
+            rank = rank || 0;
+            create = create || ((...a)=>new constructor(...a));
+            is = is || (any=>any instanceof constructor);
+            full = full || (any=>any === false || any === 0 || !!any);
+            copy = copy || (any=>any);
+            rnd = rnd || create;
+
+            if (pairs) {
+                get = get || ((x, k)=>x[k]);
+                set = set || ((x, k, v)=>x[k] = v);
+                rem = rem || ((x, k)=>delete x[k]);
+            }
+
+            jet[name] = new Complex(create, {
+                is:new Complex(
+                    (any, inclusive)=>inclusive ? is(any, typeof any) : jet.type.is(name, any),
+                    {
+                        kin:any=>is(any, typeof any),
+                        full:any=>is(any, typeof any) ? full(any) : false
+                    }
+                ),
+                to:new Complex(
+                    (any, ...a)=>convert(name, any, ...a),
+                    {
+                        define:(to, exe)=>conversion(name, to, exe)
+                    }
+                ),
+                only:(...a)=>factory(name, 0, ...a),
+                full:(...a)=>factory(name, 1, ...a),
+                tap:(...a)=>factory(name, 2, ...a),
+                copy:(...a)=>factory(name, 3, ...a),
+                rnd
+            }, custom);
+
+            list.push(index[name] = {
+                expand:filter=>expand(name, filter),
+                rank,
+                name,
+                constructor,
+                is,
+                create,
+                full,
+                copy,
+                keys,
+                vals,
+                pairs,
+                get,
+                set,
+                rem,
+                to:{}
+            });
+            list.sort((a,b)=>b.rank-a.rank);
+
         },
-        map: function(any) {return jet.key.touch("map", any);},
-        get: function(...args) {return jet.key.touch("get", ...args);},
-        set: function(...args) {return jet.key.touch("set", ...args);},
-        rem: function(...args) {return jet.key.touch("rem", ...args);}
     },
-    run:function(any, ...args) {
-        if (jet.is("function", any)) {return any(...args);}
-        return jet.isMapable(any) ? jet.obj.map(any, f=>jet.run(f, ...args)) : undefined;
-    },
-    temp,
-    num,
-    str,
-    color,
-    time,
-    obj,
-    arr,
-    rnd,
-    test,
-    web,
-    event,
-    Amount,
-    Engage,
-    Ticker,
-    ...zoo
-};
+);
 
 export default jet;
-export {
-    jet2
-}
