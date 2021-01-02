@@ -122,7 +122,7 @@ jet.type = new Complex(
                         define:(to, exe)=>conversion(name, to, exe)
                     }
                 ),
-                copy:(any, ...a)=>is(any, typeof any) ? copy(...a) : undefined,
+                copy:(any, ...a)=>is(any, typeof any) ? copy(any, ...a) : undefined,
                 only:(...a)=>factory(name, 0, ...a),
                 full:(...a)=>factory(name, 1, ...a),
                 tap:(...a)=>factory(name, 2, ...a),
