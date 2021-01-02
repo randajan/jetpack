@@ -38,7 +38,7 @@ class Amount {
         jet.map.it(temp.index[this.unit], (to, unit) => {
             let num = to(this.val);
             if (rd) { num = jet.num.round(num, dec); }
-            if (num) {fit.add([unit, jet.num.length(num), num]);}
+            if (num) {fit.add([unit, jet.num.len(num), num]);}
         });
         return fit.length ? fit[0][0] : this.unit;
     }

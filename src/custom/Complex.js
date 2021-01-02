@@ -1,11 +1,20 @@
 
+function define(o, d, writable) {
+    if (!d) { return; }
+    for (let i in d) {
+        if (o[i]) { continue; }
+        Object.defineProperty(o, i, {value:d[i], writable, enumerable:true});
+    }
+}
+
+
 class Complex extends Function {
 
     constructor(fce, fix, temp) {
         super();
         const self = fce.bind();
-        if (fix) {for (let i in fix) { Object.defineProperty(self, i, {value:fix[i], writable:false, enumerable:true}); }}
-        if (temp) {for (let i in temp) { Object.defineProperty(self, i, {value:temp[i], writable:true, enumerable:true}); }}
+        define(self, fix, false);
+        define(self, temp, true);
         return Object.setPrototypeOf(self, new.target.prototype);
     }
 }
