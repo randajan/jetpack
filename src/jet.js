@@ -2,7 +2,7 @@ import Complex from "./custom/Complex";
 
 const jet = {};
 
-const superMethods = ["is", "to", "only", "full", "tap", "copy", "rnd"];
+const superMethods = ["is", "to", "copy", "only", "full", "tap", "pull", "rnd"];
 
 function identify(any, all, withDefinition) {
     const td = typeof any, wd = withDefinition, r = all ? [] : undefined; 
@@ -15,7 +15,7 @@ function identify(any, all, withDefinition) {
     if (wd) { return r; } else if (!r) { return td; } else { r.push(td); return r; }
 }
 
-//0 = only, 1 = full, 2 = tap, 3 = copy
+//0 = only, 1 = full, 2 = tap, 3 = pull
 function factory(type, out, ...args) {
     const t = jet.type.index[type]; if (!t) { return; }
     for (let a of args) {
@@ -122,10 +122,11 @@ jet.type = new Complex(
                         define:(to, exe)=>conversion(name, to, exe)
                     }
                 ),
+                copy:(...a)=>copy(...a),
                 only:(...a)=>factory(name, 0, ...a),
                 full:(...a)=>factory(name, 1, ...a),
                 tap:(...a)=>factory(name, 2, ...a),
-                copy:(...a)=>factory(name, 3, ...a),
+                pull:(...a)=>factory(name, 3, ...a),
                 rnd
             }, custom);
 

@@ -54,7 +54,7 @@ export default {
             handler = jet.fce.tap(handler, jet.ele.listen.cut);
             append = jet.bol.tap(append, true);
             ele[(append ? "add" : "remove")+"EventListener"](type, handler, opt);
-            return _=>jet.event.listen(ele, type, handler, opt, !append);
+            return _=>jet.ele.listen(ele, type, handler, opt, !append);
         },
         {
             cut(ev, bubbling) {
@@ -169,6 +169,7 @@ export default {
                 onSwipe = jet.fce.tap(onSwipe);
 
                 opt.autoReset = true;
+                opt.autoPick = false;
                 opt.up = jet.num.tap(opt.up);
                 opt.left = jet.num.tap(opt.left);
                 opt.right = jet.num.tap(opt.right);
