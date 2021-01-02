@@ -12,7 +12,7 @@ npm install --save @randajan/jetpack
 
 ## About
 
-Maping objects, generic creating variables (even instance) with default, filtering by types, lot other stuff
+Custom types, maping objects, generic creating, filtering by types & other stuff
 
 ## Main content
 
@@ -26,54 +26,37 @@ _Superstructure of native typeof and instanceof methods_
   * all=false || undefined: _top type of variable_
   * all=true: _array with all types of variable sorted by its priority_
 * Example
-  * jet.type([], true) === ["array", "object"];
-  * jet.type(RegExp()) === "regexp";
+  * jet.type([], true) === ["arr", "object"];
+  * jet.type(RegExp()) === "regex";
 
 ### __jet.type.define__
 _Defining custom types for detecting, creating and copying_
 
 * Arguments
-  * priority: _number (>= 0)_
   * name: _string (name of the type)_
-  * body: _class_
-  * create: _function (for creating new instance)_
-  * copy: _function (for perform copy)_
-  * list: _function (retrieve keys of this type, if there is function it is also mapable=true)_
-  * get: _function (retrieve key of this type)_
-  * set: _function (set key of this type)_
-  * rem: _function (remove key of this type)_
+  * constructor: _class_
+  * opt: _object_
+    * rank: _number (>= 0)_
+    * create: _function (creating new instance)_
+    * is: _function (verify type of variable)_
+    * full: _function (check if variable is full)_
+    * copy: _function (perform copy)_
+    * rnd: _function (create with random content)_
+    * keys: _function (array of keys for mapable types)_
+    * vals: _function (array of values for mapable types)_
+    * pairs: _function (array of entries for mapable types)_
+    * get: _function (get key for mapable types)_
+    * set: _function (set key for mapable types)_
+    * rem: _function (rem key for mapable types)_
+  * custom: _object (functions that should be appended to jet.*)_
 * Return
   * _true when successfully defined_
 * Example
-  * jet.type.define(-1, "array", Array, _=>new Array(), _=>Array.from(_), true);
-  * jet.type.define(-1, "element", Element);
+  * jet.type.define("arr", Array, { rank:-1, create:x=>new Array(x), copy:x=>Array.from(x) } );
+  * jet.type.define("ele", Element, { rank:-1 }, { find:query=>document.querySelector(query) });
 
-### __jet.isMapable__
-_Return true on any type of variable that has mapable=true on its type definition_
-
-* Arguments
-  * any: _any variable_
-* Return
-  * _true when variable is mapable_
-* Example
-  * jet.isMapable([]) === true
-  * jet.isMapable({}) === true;
-  * jet.isMapable("foo") === false;
-
-### __jet.isEmpty / jet.isFull__
-_Catching empty mapable objects and NaN. isFull is just inverse of function isEmpty_
-
-* Arguments
-  * any: _any variable_
-* Return
-  * isEmpty: _true when variable is empty_
-  * isFull: _true when variable is full_
-* Example
-  * jet.isEmpty([]) === true;
-  * jet.isFull({foo:bar}) === true;
-
-### __jet.is__
-_Check the passed type with result from instanceof compare || jet.type || jet.isMap || jet.isEmpty || jet.isFull_
+### __jet.type.is__
+_Check the passed type with result from instanceof compare || jet.type_
 
 * Arguments
   * type: _string (type name) || class (for compare instanceof)_
@@ -81,74 +64,82 @@ _Check the passed type with result from instanceof compare || jet.type || jet.is
   * inclusive: _boolean_
 * Return
   * type=class: _any instanceof type_
-  * type="mapable": _jet.isMapable()_
-  * type="empty": _jet.isEmpty()_
-  * type="full": _jet.isFull()_
   * inclusive=true: _true when the type is included in result of jet.type all=true_
 * Example
   * jet.is(Array, []) === true;
-  * jet.is("array", []) === true;
-  * jet.is("object", []) === false;
-  * jet.is("object", [], true) === true;
-  * jet.is("regexp", RegExp()) === true;
+  * jet.is("arr", []) === true;
+  * jet.is("obj", []) === false;
+  * jet.is("obj", [], true) === true;
+  * jet.is("regex", RegExp()) === true;
 
-### __jet.create__
-_Will create instance by type (if there is defined create function)_
+### __jet.type.is.map__
+_Return true on any type of variable that has mapable=true on its type definition_
 
 * Arguments
-  * type: _string (type name)_
+  * any: _any variable_
+* Return
+  * _true when variable is mapable_
+* Example
+  * jet.is.map([]) === true
+  * jet.is.map({}) === true;
+  * jet.is.map("foo") === false;
+
+### __jet.type.is.full__
+_Catching empty mapable objects and NaN_
+
+* Arguments
+  * any: _any variable_
+* Return
+  * _true when variable is full_
+* Example
+  * jet.is.full([]) === false;
+  * jet.is.full({foo:bar}) === true;
+
+### __jet.*__
+_Will create instance requested * type (use without "new")_
+
+* Arguments
   * ...args: _will be passed to the creating function_
 * Return
   * _new instance_
 * Example
-  * jet.create("mapable") == [];
-  * jet.create("array", "foo", "bar") == ["foo", "bar"];
-  * jet.create("object") == {};
+  * jet.arr("foo", "bar") == ["foo", "bar"];
+  * jet.obj() == {};
+  * jet.ele() == <div></div>;
 
-### __jet.copy__
-_Will create copy of instance (if there is defined copy function for its type)_
+### __jet.*.is / .is.full__
+_Same as jet.type.is && jet.type.is.full but without first argument_
+
+### __jet.*.copy__
+_Will create copy of instance_
 
 * Arguments
   * any: _any variable_
 * Return
   * _new instance or the old if there isn't defined copy function_
 * Example
-  * jet.copy({a:1}) === Object.assign({}, {a:1});
-  * jet.copy(["foo", "bar"]) === Array.from(["foo", "bar"]);
+  * jet.obj.copy({a:1}) == Object.assign({}, {a:1});
+  * jet.arr.copy(["foo", "bar"]) == Array.from(["foo", "bar"]);
 
-### __jet.filter / jet.get / jet.pull__ _/ jet.factory_
-_Used for type function arguments, creating defaults and copy passed array/object_
+### __jet.*.only / .tap / .full / .pull__
+_Used for selecting, filtering, creating or copying variables_
 
 * Arguments
-  * type: _string (type name) || array/object (with sub array of whole arguments)_
   * ...args: _any variable (will be tested in order until the type will match)_
 * Return
-  * type=array/object: _result of recursive calling at the same key of array/object_
-  * type=string: _single variable which type === the type argument_
-  * filter: _undefined when there is no match_
-  * get: _same as filter and try to create the type when there is no match_
-  * pull: _same as get and try to copy variable if there is match_
+  * only: _undefined when there is no match_
+  * full: _same as only but variable must be full_
+  * tap: _same as only but try to create the type when there is no match_
+  * pull: _same as tap but try to copy variable if there is match_
 * Example
-  * jet.filter("string", 1, "foo", ["bar"], {foo:"bar"}) === "foo";
-  * jet.get("array", 1, "foo", ["bar"], {foo:"bar"}) === ["bar"];
-  * jet.filter("regexp", 1, "foo", ["bar"], {foo:"bar"}) == null;
-  * jet.get("regexp", 1, "foo", ["bar"], {foo:"bar"}) == RegExp();
-  * jet.pull([[map, {}], ["string", "foo"], ["regexp"]]) == [{}, "foo", RegExp()];
+  * jet.str.only(1, "foo", [], ["bar"], {foo:"bar"}) == "foo";
+  * jet.arr.tap(1, "foo", [], ["bar"], {foo:"bar"}) == [];
+  * jet.arr.full(1, "foo", [], ["bar"], {foo:"bar"}) == ["bar"];
+  * jet.regex.only(1, "foo", [], ["bar"], {foo:"bar"}) == null;
+  * jet.regex.tap(1, "foo", [], ["bar"], {foo:"bar"}) == RegExp();
+  * jet.obj.pull(1, "foo", [], ["bar"], {foo:"bar"}) == {foo:"bar"}
 
-### __jet.untie__
-_If type of the first value in obj is "object" or "array" it will unpack those values to overwrite initial (the obj) values and return array with those values in the initial order_
-
-* Arguments
-  * obj: _obj (argumentName:value)_ 
-* Return
-  * _array with values_
-* Example
-  * //function xyz(x,y,z) {return jet.untie({x,y,z});};
-  * xyz("a", "b", "c") === ["a", "b", "c"];
-  * xyz(["a", "b", "c"]) === ["a", "b", "c"];
-  * xyz({a:"a", b:"b" c:"c"}, "B") === ["a", "b", "c"]
-
-### __jet.key.list / jet.key.get / jet.key.set / jet.key.rem__ _/ jet.touch_
+### __jet.map.vals / .keys / .pairs / .get / .set / .rem__
 _Handle mapable objects (it requires defined type)_
 
 * Arguments
@@ -158,9 +149,37 @@ _Handle mapable objects (it requires defined type)_
 * Return
   * result from perform operation against the defined type_
 * Example
-  * jet.key.get({foo:"bar"}, "bar") === "bar";
+  * jet.map.get({foo:"bar"}, "bar") === "bar";
 
-### __jet.run__
+### __jet.map.dig__
+_Return value from deep nested object_
+
+* Arguments
+  * any: _any mapable variable_ 
+  * path: _string or Array (even nested Array)_
+  * def: _any_
+* Return
+  * find value or def when no value was found
+* Example
+  * jet.map.dig({foo:["bar"]}, "foo.0") == "bar";
+  * jet.map.dig({foo:["bar"]}, ["foo", 1], "foo") == "foo";
+
+### __jet.map.it / .of__
+_Map any mapable object by default: Object, Array, Set, Map, Pool_
+
+* Arguments
+  * any: _any mapable variable_ 
+  * fce: _function(val, key, path) (handler)_
+  * deep: _boolean (recursive maping)_
+* Return
+  * it: _count items in structure_
+  * of: _copy of structure with result from handler function_
+* Example
+  * jet.map.it({foo:"bar"}, _=>_) == 1;
+  * jet.map.of({foo:"bar"}, _=>"foo"+_) == {foo:"foobar"};
+
+
+### __jet.fce.run__
 _Will run every function that will discover without collecting results_
 
 * Arguments
@@ -170,7 +189,7 @@ _Will run every function that will discover without collecting results_
   * any=function: _true when it was run successfully_
   * any=array/object: _count of succesfully runned functions_
 * Example
-  * jet.run(_=>console.log(_)) === true _console: "foo"_
+  * jet.fce.run(_=>console.log(_)) === true _console: "foo"_
 
 
 ## License

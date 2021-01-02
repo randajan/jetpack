@@ -87,7 +87,7 @@ jet.type = new Complex(
         ),
         define:(name, constructor, opt, custom)=>{
             const { list, index } = jet.type;
-            let { rank, create, is, full, copy, rnd, keys, vals, pairs, get, set, rem} = (opt || {});
+            let { rank, create, is, full, copy, rnd, keys, vals, pairs, get, set, rem } = (opt || {});
 
             const err = "Jet type '" + name + "'";
             if (index[name]) {throw new Error(err+" is allready defined!!!");}
@@ -147,9 +147,9 @@ jet.type = new Complex(
                 rem,
                 to:{}
             });
-            
-            list.sort((a,b)=>b.rank-a.rank);
 
+            list.sort((a,b)=>b.rank-a.rank);
+            return true;
         },
     },
 );
