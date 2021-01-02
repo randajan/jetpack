@@ -185,7 +185,7 @@ jet.type.define("pool", Pool, {
     rem:(x,v)=>x.rem(v),
 });
 
-jet.type.define("runpool", RunPool, {
+jet.type.define("rupl", RunPool, {
     full:x=>!!x.length,
     keys:x=>x.keys(),
     vals:x=>x.values(),
@@ -202,10 +202,6 @@ jet.type.define("sort", Sort, {
     set:(x,k,v)=>x.add(v),
     rem:(x,v)=>x.rem(v),
 });
-
-jet.type.define("lexicon", Lexicon, {
-    full:x=>!!x.pattern,
-}, Lexicon);
 
 
 jet.type.define("amount", Amount, {
@@ -279,7 +275,7 @@ jet.set.to.define({
 
 jet.prom.to.define({
     eng:(prom, timeout)=>jet.eng(prom, timeout)
-})
+});
 
 jet.fce.to.define({
     "*":(fce, ...args)=>fce(...args),

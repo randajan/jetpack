@@ -122,7 +122,7 @@ jet.type = new Complex(
                         define:(to, exe)=>conversion(name, to, exe)
                     }
                 ),
-                copy:(...a)=>copy(...a),
+                copy:(any, ...a)=>is(any, typeof any) ? copy(...a) : undefined,
                 only:(...a)=>factory(name, 0, ...a),
                 full:(...a)=>factory(name, 1, ...a),
                 tap:(...a)=>factory(name, 2, ...a),
@@ -147,6 +147,7 @@ jet.type = new Complex(
                 rem,
                 to:{}
             });
+            
             list.sort((a,b)=>b.rank-a.rank);
 
         },
