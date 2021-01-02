@@ -74,6 +74,7 @@ class Engage extends Promise {
         Object.defineProperties(this, desc);
 
         const _then = this.then.bind(this);
+        
         jet.obj.prop.add(this, {
             is:state=>this.state === state,
             catch:(oncatch, timeout)=>{
