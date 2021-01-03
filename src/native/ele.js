@@ -180,8 +180,8 @@ export default {
                 let { minDist, maxTime } = opt;
 
                 return jet.ele.listen.drag(ele, (ev, bound)=>{
-                    const { time, dist } = bound;
-                    if (time < maxTime && dist > minDist) { onSwipe(ev, bound); }
+                    const { state, time, dist } = bound;
+                    if (state === "stop" && time < maxTime && dist > minDist) { onSwipe(ev, bound); }
                 }, opt);
             }
         }
