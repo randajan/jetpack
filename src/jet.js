@@ -26,6 +26,11 @@ function _is(name, any, inclusive) {
     return _i(name) ? _io(name, any) : inclusive ? _id(any, true).includes(name) : name === _id(any);
 }
 
+function _touch(any, op, ...args) {
+    const t = _id(any, false, true);
+    if (t && t[op]) { return t[op](any, ...args); }
+}
+
 //0 = only, 1 = full, 2 = tap, 3 = pull
 function _factory(name, mm, ...args) {
     const n = _i(name);
@@ -84,6 +89,13 @@ function _expand(type, filter) {
     }
 }
 
+function _rndKey(arr, min, max, sqr) { //get random element from array or string
+    if (!arr) { return; }
+    arr = Array.from(arr);
+    const l = arr.length;
+    return arr[Math.floor(jet.num.rnd(jet.num.frame(min||0, 0, l), jet.num.frame(max||l, 0, l), sqr))];
+};
+
 jet.type = new Complex(
     (any, all)=>_id(any, all), 
     {
@@ -111,6 +123,21 @@ jet.type = new Complex(
         tap:(name, ...a)=>_factory(name, 2, ...a),
         pull:(name, ...a)=>_factory(name, 3, ...a),
         copy:(any, ...a)=>_copy(any, ...a),
+        keys:any=>_touch(any, "keys"),
+        vals:any=>_touch(any, "vals"),
+        pairs:any=>_touch(any, "pairs"),
+        key:new Complex(
+            (any, key)=>_touch(any, "get", key),
+            {
+                set:(any, key, val)=>_touch(any, "set", key, val),
+                rem:(any, key)=>_touch(any, "rem", key),
+                rnd:(any, min, max, sqr)=>{
+                    const t = jet.type.raw(any);
+                    if (t.vals) { any = t.vals(any); } else if (typeof any !== "string") { return; }
+                    return _rndKey(any, min, max, sqr);
+                }
+            }
+        ),
         define:(name, constructor, opt, custom)=>{
             const { list, index } = jet.type;
             let { rank, create, is, full, copy, rnd, keys, vals, pairs, get, set, rem } = (opt || {});
@@ -128,13 +155,7 @@ jet.type = new Complex(
             copy = copy || (any=>any);
             rnd = rnd || create;
 
-            if (pairs) {
-                get = get || ((x, k)=>x[k]);
-                set = set || ((x, k, v)=>x[k] = v);
-                rem = rem || ((x, k)=>delete x[k]);
-            }
-
-            jet[name] = new Complex(create, {
+            const fix = {
                 is:new Complex(
                     (any, inclusive)=>inclusive ? is(any, typeof any) : _is(name, any),
                     {
@@ -154,28 +175,34 @@ jet.type = new Complex(
                 pull:(...a)=>_factory(name, 3, ...a),
                 copy:(any, ...a)=>is(any, typeof any) ? copy(any, ...a) : undefined,
                 rnd
-            }, custom);
+            };
+
+            if (pairs) {
+                get = get || ((x, k)=>x[k]);
+                set = set || ((x, k, v)=>x[k] = v);
+                rem = rem || ((x, k)=>delete x[k]);
+
+                fix.keys = any=>is(any, typeof any) ? keys(any) : undefined
+                fix.vals = any=>is(any, typeof any) ? vals(any) : undefined
+                fix.pairs = any=>is(any, typeof any) ? pairs(any) : undefined
+                fix.key = new Complex(
+                    (any, key)=>is(any, typeof any) ? get(any, key) : undefined,
+                    {
+                        set:(any, key, val)=>is(any, typeof any) ? set(any, key, val) : undefined,
+                        rem:(any, key)=>is(any, typeof any) ? rem(any, key) : undefined,
+                        rnd:(any, min, max, sqr)=>is(any, typeof any) ? _rndKey(vals(any), min, max, sqr) : undefined,
+                    }
+                );
+            }
 
             list.push(index[name] = {
-                expand:filter=>_expand(name, filter),
-                rank,
-                name,
-                constructor,
-                is,
-                create,
-                full,
-                copy,
-                keys,
-                vals,
-                pairs,
-                get,
-                set,
-                rem,
-                to:{}
+                rank, name, constructor, is, create, full, copy, keys, vals, pairs, get, set, rem,
+                expand:filter=>_expand(name, filter), to:{}
             });
 
             list.sort((a,b)=>b.rank-a.rank);
-            return true;
+
+            return jet[name] = new Complex(create, fix, custom);
         },
     },
 );

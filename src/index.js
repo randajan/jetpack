@@ -28,6 +28,7 @@ function unBundle(Prototyp) {
 }
 
 function rndKey(arr, min, max, sqr) { //get random element from array or string
+    if (!arr) { return; }
     const l = arr.length;
     return arr[Math.floor(jet.num.rnd(jet.num.frame(min||0, 0, l), jet.num.frame(max||l, 0, l), sqr))];
 };

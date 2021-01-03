@@ -13,7 +13,7 @@ class Lexicon {
         const next = jet.obj.tap(this.pattern[char]);
         const remend = (notend && next[" "]);
         let rand = jet.num.rnd(0, 1-(remend ? next[" "] : 0)), cnt = 0;
-        for ([char, rate] of jet.map.pairs(next)) {
+        for ([char, rate] of jet.type.pairs(next)) {
             if ((remend && char === " ") || (cnt += rate) < rand) {continue;}
             return char;
         }

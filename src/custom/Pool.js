@@ -14,7 +14,7 @@ class Pool extends ArrayLike {
     add(...items) {
         let c = 0;
         items.map(v => {
-            if (this.flat && jet.type.is.map(v)) { return c += this.add(...jet.map.vals(v)); }
+            if (this.flat && jet.type.is.map(v)) { return c += this.add(...jet.type.vals(v)); }
             let t = this.classify(v), l = this.length; if (t < 0) { return; } //not classified
             const f = this.indexOf(v), k = f >= 0; if (k && t === l) { t--; } if (t === f) { return; } //allready exist at the same place
             if (k && t > f) { for (let j = f; j < t; j++) { this[j] = this[j + 1]; } } //actual index is lower then new
