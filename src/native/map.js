@@ -54,13 +54,13 @@ export default {
             if (val == null) { pb[pa.length-1-i] = [any, p]; } //backpath
             if (!force && any[p] != null && !jet.type.is.map(any[p])) { return r; }
             else if (i !== pa.length-1) { any = jet.type.key.set(any, p, getForKey(any[p], pa[i+1]));}
-            else if (val == null) { jet.map.rem(any, p);}
+            else if (val == null) { jet.type.key.rem(any, p);}
             else { jet.type.key.set(any, p, val);}
         };
 
         for (let [any, p] of pb) {
             if (jet.type.is.full(any[p])) { break; }
-            else { jet.map.rem(any, p); }
+            else { jet.type.key.rem(any, p); }
         };
         return r;
     },
