@@ -4,24 +4,40 @@ const jet = {};
 
 const magicMethod = ["only", "full", "tap", "pull", "is", "to", "copy", "rnd"];
 
-function _identify(any, all, withDefinition) {
+function _i(any) {
+    const t = typeof any;
+    return (t === "function" || t === "object");
+}
+function _io(name, any) { return any instanceof name; } //is instance comparing
+function _iu(any) { return (any === false || any === 0 || !!any)}
+
+function _id(any, all, withDefinition) {
     const td = typeof any, wd = withDefinition, r = all ? [] : undefined; 
     if (any == null) { return r; }
-    for (let type of jet.type.list) {
-        if (!type.is(any, td)) { continue; }
-        let n = wd ? type : type.name;
+    for (let t of jet.type.list) {
+        if (!t.is(any, td)) { continue; }
+        let n = wd ? t : t.name;
         if (r) { r.push(n) } else { return n; }
     }
     if (wd) { return r; } else if (!r) { return td; } else { r.push(td); return r; }
 }
 
+function _is(name, any, inclusive) {
+    return _i(name) ? _io(name, any) : inclusive ? _id(any, true).includes(name) : name === _id(any);
+}
+
 //0 = only, 1 = full, 2 = tap, 3 = pull
-function _factory(type, mm, ...args) {
-    const t = jet.type.index[type];
-    if (!t) { console.warn("Unable execute '"+magicMethod[mm]+"' unknown type '"+type+"'"); return; }
+function _factory(name, mm, ...args) {
+    const n = _i(name);
+    const t = jet.type.index[name];
+    if (n && mm > 0) { console.warn("Unable execute '"+magicMethod[mm]+"' - unavailable for constructors"); return; }
+    if (!n && !t) { console.warn("Unable execute '"+magicMethod[mm]+"' - unknown type '"+name+"'"); return; }
     for (let a of args) {
-        if (!t.is(a, typeof a) || (mm === 1 && !t.full(a))) {continue;}
-        return mm === 3 ? t.copy(a) : a;
+        if (!n) {
+            const at = _id(a, false, true);
+            if (at && at.name === name && (mm !== 1 || at.full(a))) { return mm === 3 ? at.copy(a) : a; }
+        }
+        else if (_io(name, a)) { return a; }
     }
     if (mm > 1) { return t.create(); }
 }
@@ -29,7 +45,7 @@ function _factory(type, mm, ...args) {
 function _to(type, any, ...args) {
     const t = jet.type.index[type];
     if (!t) { console.warn("Unable execute 'to'. Unknown type '"+type+"'"); return; }
-    const at = jet.type.raw(any);
+    const at = _id(any, false, true);
     if (!at) { return t.create(); }
     if (t.name === at.name) { return any; }
     const exe = at.to[type] || at.to["*"]; 
@@ -37,14 +53,14 @@ function _to(type, any, ...args) {
 }
 
 function _copy(any, ...args) {
-    const t = jet.type.raw(any);
+    const t = _id(any, false, true);
     if (!t) { console.warn("Unable execute 'copy' unknown type '"+type+"'"); return; }
     return t.copy(any, ...args);
 }
 
 function _toDefine(from, to, exe) {
     const type = jet.type.index;
-    const tt = jet.type(to);
+    const tt = _id(to);
     if (!type[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
     const conv = type[from].to;
     if (tt === "arr") { for (let i in to) { conv[to[i]] = exe; } }
@@ -69,27 +85,23 @@ function _expand(type, filter) {
 }
 
 jet.type = new Complex(
-    (any, all)=>_identify(any, all), 
+    (any, all)=>_id(any, all), 
     {
         list:[],
         index:{},
-        all:any=>_identify(any, true),
-        raw:any=>_identify(any, false, true),
+        all:any=>_id(any, true),
+        raw:any=>_id(any, false, true),
         is:new Complex(
-            (name, any, inclusive)=>{
-                const t = typeof name;
-                if (t === "function" || t === "object") {return any instanceof name;} //is instance comparing
-                return inclusive ? jet.type.all(any).includes(name) : name === jet.type(any);
-            },
+            _is,
             {
-                kin:(name, any)=>jet.type.is(name, any, true),
+                kin:(name, any)=>_is(name, any, true),
                 map:any=>{
                     const t = jet.type.raw(any);
                     return t ? !!t.pairs : false;
                 },
                 full:any=>{
                     const t = jet.type.raw(any);
-                    return t ? t.full(any) : (any === false || any === 0 || !!any);
+                    return t ? t.full(any) : _iu(any);
                 },
             }
         ),
@@ -111,8 +123,8 @@ jet.type = new Complex(
 
             rank = rank || 0;
             create = create || ((...a)=>new constructor(...a));
-            is = is || (any=>any instanceof constructor);
-            full = full || (any=>any === false || any === 0 || !!any);
+            is = is || (any=>_io(constructor, any));
+            full = full || _iu;
             copy = copy || (any=>any);
             rnd = rnd || create;
 
@@ -124,7 +136,7 @@ jet.type = new Complex(
 
             jet[name] = new Complex(create, {
                 is:new Complex(
-                    (any, inclusive)=>inclusive ? is(any, typeof any) : jet.type.is(name, any),
+                    (any, inclusive)=>inclusive ? is(any, typeof any) : _is(name, any),
                     {
                         kin:any=>is(any, typeof any),
                         full:any=>is(any, typeof any) ? full(any) : false
