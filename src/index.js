@@ -27,12 +27,6 @@ function unBundle(Prototyp) {
     return inst._c ? inst._c.constructor : Prototyp;
 }
 
-function rndKey(arr, min, max, sqr) { //get random element from array or string
-    if (!arr) { return; }
-    const l = arr.length;
-    return arr[Math.floor(jet.num.rnd(jet.num.frame(min||0, 0, l), jet.num.frame(max||l, 0, l), sqr))];
-};
-
 //PRIMITIVES
 
 jet.type.define("obj", Object, {
@@ -66,18 +60,13 @@ jet.type.define("str", String, {
     rank:-4,
     is:(x,t)=>t === "string",
     create:any=>any == null ? "" : String(any),
-    rnd:new Complex(
-        (min, max, sqr)=>{ //HOW TO GENERATE GREAT RANDOM STRING???
-            const c = ["bcdfghjklmnpqrstvwxz", "aeiouy"], p = c[0].length/(c[0].length+c[1].length);
-            const l = jet.num.rnd(Math.max(min, 2), max, sqr);
-            let s = jet.bol.rnd(p), r = "";
-            while (r.length < l) {r += jet.str.rnd.key(c[+(s = !s)]);}
-            return r;
-        },
-        {
-            key:rndKey
-        }
-    ),
+    rnd:(min, max, sqr)=>{ //HOW TO GENERATE GREAT RANDOM STRING???
+        const c = ["bcdfghjklmnpqrstvwxz", "aeiouy"], p = c[0].length/(c[0].length+c[1].length);
+        const l = jet.num.rnd(Math.max(min, 2), max, sqr);
+        let s = jet.bol.rnd(p), r = "";
+        while (r.length < l) {r += jet.type.rnd.key(c[+(s = !s)]);}
+        return r;
+    }
 }, str);
 
 jet.type.define("symbol", Symbol, {

@@ -2,11 +2,6 @@ import jet from "../jet.js";
 
 import Complex from "../custom/Complex";
 
-function _touch(any, op, ...args) {
-    const t = jet.type.raw(any);
-    if (t && t[op]) { return t[op](any, ...args); }
-}
-
 function getForKey(any, key) { return jet.type.is.map(any) ? any : jet.str.isNumeric(key) ? [] : {}; }
 
 function _audit(includeMapable, ...any) {
