@@ -3,7 +3,7 @@ import jet from "../jet";
 export default {
     run:function(any, ...args) {
         if (jet.fce.is(any)) { return any(...args); }
-        return jet.map.it(any, f=>jet.fce.run(f, ...args));
+        return jet.map.of(any, f=>jet.fce.run(f, ...args));
     },
     measure:function(fces, args, repeat) {
         const rep = repeat || 100, ladder = [], statis = {};

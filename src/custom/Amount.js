@@ -6,8 +6,6 @@ const temp = {
     index:{}
 }
 
-class AmountError extends Error {}
-
 class Amount {
 
     static is(instance) { return instance instanceof Amount; } 
@@ -66,7 +64,7 @@ class Amount {
 Amount.validateUnit = (unit, force)=>{
     if (temp.index[unit]) { return unit; }
     if (force) { return ""; }
-    throw new AmountError("Undefined Amount units '"+unit+"'"); 
+    console.warn("Undefined amount units '"+unit+"'");
 }
 
 Amount.validatePair = (unit, parent, force)=>{
@@ -74,7 +72,7 @@ Amount.validatePair = (unit, parent, force)=>{
     parent = Amount.validateUnit(parent, force);
     if (unit && parent && temp.index[unit][parent]) { return unit; }
     if (force) { return ""; }
-    throw new AmountError("Undefined Amount relation '"+unit+"' to '"+parent+"'");
+    console.warn("Undefined amount relation '"+unit+"' to '"+parent+"'");
 }
 
 Amount.parse = (any)=>{
@@ -106,7 +104,7 @@ Amount.define = (unit, parent, exponent, path)=>{
     const boundParent = index[parent] || (index[parent] = {});
     const boundUnit = index[unit] || (index[unit] = {});
     path = jet.arr.tap(path, [unit, parent]);
-    if (boundParent[unit] || boundUnit[parent]) { throw new AmountError("Relation between Amount units '" + unit + "' and '" + parent + "' can't be redefined!!!"); }
+    if (boundParent[unit] || boundUnit[parent]) { throw new Error("Relation between amount units '" + unit + "' and '" + parent + "' can't be redefined!!!"); }
 
     boundParent[unit] = v => jet.num.x(v, "/", exponent)
     boundUnit[parent] = v => jet.num.x(v, "*", exponent)

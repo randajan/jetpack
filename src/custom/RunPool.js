@@ -8,7 +8,7 @@ class RunPool extends Pool {
     }
 
     run(...args) {
-        return jet.fce.run(this, ...this.with, ...args);
+        return this.map(v=>v(...this.with, ...args));
     }
 
     fit(...args) {

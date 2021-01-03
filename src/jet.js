@@ -2,9 +2,9 @@ import Complex from "./custom/Complex";
 
 const jet = {};
 
-const superMethods = ["is", "to", "copy", "only", "full", "tap", "pull", "rnd"];
+const magicMethod = ["only", "full", "tap", "pull", "is", "to", "copy", "rnd"];
 
-function identify(any, all, withDefinition) {
+function _identify(any, all, withDefinition) {
     const td = typeof any, wd = withDefinition, r = all ? [] : undefined; 
     if (any == null) { return r; }
     for (let type of jet.type.list) {
@@ -16,25 +16,33 @@ function identify(any, all, withDefinition) {
 }
 
 //0 = only, 1 = full, 2 = tap, 3 = pull
-function factory(type, out, ...args) {
-    const t = jet.type.index[type]; if (!t) { return; }
+function _factory(type, mm, ...args) {
+    const t = jet.type.index[type];
+    if (!t) { console.warn("Unable execute '"+magicMethod[mm]+"' unknown type '"+type+"'"); return; }
     for (let a of args) {
-        if (!t.is(a, typeof a) || (out === 1 && !t.full(a))) {continue;}
-        return out === 3 ? t.copy(a) : a;
+        if (!t.is(a, typeof a) || (mm === 1 && !t.full(a))) {continue;}
+        return mm === 3 ? t.copy(a) : a;
     }
-    if (out > 1) { return t.create(); }
+    if (mm > 1) { return t.create(); }
 }
 
-function convert(type, any, ...args) {
-    const t = jet.type.index[type]; if (!t) { return; }
+function _to(type, any, ...args) {
+    const t = jet.type.index[type];
+    if (!t) { console.warn("Unable execute 'to'. Unknown type '"+type+"'"); return; }
     const at = jet.type.raw(any);
     if (!at) { return t.create(); }
     if (t.name === at.name) { return any; }
     const exe = at.to[type] || at.to["*"]; 
-    return exe ? convert(type, exe(any, ...args), ...args) : t.create(any);
+    return exe ? _to(type, exe(any, ...args), ...args) : t.create(any);
 }
 
-function conversion(from, to, exe) {
+function _copy(any, ...args) {
+    const t = jet.type.raw(any);
+    if (!t) { console.warn("Unable execute 'copy' unknown type '"+type+"'"); return; }
+    return t.copy(any, ...args);
+}
+
+function _toDefine(from, to, exe) {
     const type = jet.type.index;
     const tt = jet.type(to);
     if (!type[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
@@ -45,13 +53,13 @@ function conversion(from, to, exe) {
     else { conv[to] = exe; }
 }
 
-function expand(type, filter) {
+function _expand(type, filter) {
     const t = jet.type.index[type]; if (!t) { return; }
     const p = t.constructor.prototype;
     const c = jet[type];
 
     for (let i in c) {
-        if (p[i] || superMethods.includes(i) || (filter && !filter.includes(i))) {continue;}
+        if (p[i] || magicMethod.includes(i) || (filter && !filter.includes(i))) {continue;}
         Object.defineProperty(p, i, {
             enumerable:false,
             writable:false,
@@ -61,12 +69,12 @@ function expand(type, filter) {
 }
 
 jet.type = new Complex(
-    (any, all)=>identify(any, all), 
+    (any, all)=>_identify(any, all), 
     {
         list:[],
         index:{},
-        all:any=>identify(any, true),
-        raw:any=>identify(any, false, true),
+        all:any=>_identify(any, true),
+        raw:any=>_identify(any, false, true),
         is:new Complex(
             (name, any, inclusive)=>{
                 const t = typeof name;
@@ -85,6 +93,12 @@ jet.type = new Complex(
                 },
             }
         ),
+        to:(name, any, ...a)=>_to(name, any, ...a),
+        only:(name, ...a)=>_factory(name, 0, ...a),
+        full:(name, ...a)=>_factory(name, 1, ...a),
+        tap:(name, ...a)=>_factory(name, 2, ...a),
+        pull:(name, ...a)=>_factory(name, 3, ...a),
+        copy:(any, ...a)=>_copy(any, ...a),
         define:(name, constructor, opt, custom)=>{
             const { list, index } = jet.type;
             let { rank, create, is, full, copy, rnd, keys, vals, pairs, get, set, rem } = (opt || {});
@@ -117,21 +131,21 @@ jet.type = new Complex(
                     }
                 ),
                 to:new Complex(
-                    (any, ...a)=>convert(name, any, ...a),
+                    (any, ...a)=>_to(name, any, ...a),
                     {
-                        define:(to, exe)=>conversion(name, to, exe)
+                        define:(to, exe)=>_toDefine(name, to, exe)
                     }
                 ),
+                only:(...a)=>_factory(name, 0, ...a),
+                full:(...a)=>_factory(name, 1, ...a),
+                tap:(...a)=>_factory(name, 2, ...a),
+                pull:(...a)=>_factory(name, 3, ...a),
                 copy:(any, ...a)=>is(any, typeof any) ? copy(any, ...a) : undefined,
-                only:(...a)=>factory(name, 0, ...a),
-                full:(...a)=>factory(name, 1, ...a),
-                tap:(...a)=>factory(name, 2, ...a),
-                pull:(...a)=>factory(name, 3, ...a),
                 rnd
             }, custom);
 
             list.push(index[name] = {
-                expand:filter=>expand(name, filter),
+                expand:filter=>_expand(name, filter),
                 rank,
                 name,
                 constructor,

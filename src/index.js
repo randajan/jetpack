@@ -148,7 +148,7 @@ const oSet = unBundle(Set);
 jet.type.define("set", Set, {
     rank:-1,
     is:x=>x instanceof Set || x instanceof oSet,
-    copy:x=>new Set(x),
+    copy:x=>new oSet(x),
     keys:x=>x.keys(),
     vals:x=>x.values(),
     pairs:x=>x.entries(),
@@ -162,7 +162,7 @@ const oMap = unBundle(Map);
 jet.type.define("map", Map, {
     rank:-1,
     is:x=>x instanceof Map || x instanceof oMap,
-    copy:x=>new Map(x),
+    copy:x=>new oMap(x),
     keys:x=>x.keys(),
     vals:x=>x.values(),
     pairs:x=>x.entries(),

@@ -6,8 +6,7 @@ class Pool extends ArrayLike {
 
     constructor(filter, flat) {
         super();
-        Object.defineProperty(this, "filter", {enumerable:false, writable:false, value:filter})
-        Object.defineProperty(this, "flat", {enumerable:false, writable:false, value:flat})
+        jet.obj.prop.add(this, { filter, flat });
     }
 
     classify(item) {return (!this.filter || jet.type.is(this.filter, item)) ? this.length : -1; }
