@@ -50,7 +50,7 @@ _Defining custom types for detecting, creating and copying_
     * rem: _function (rem key for mapable types)_
   * custom: _object (functions that should be appended to jet.*)_
 * Return
-  * _true when successfully defined_
+  * _object similiar to jet.* when successfully defined_
 * Example
   * jet.type.define("arr", Array, { rank:-1, create:x=>new Array(x), copy:x=>Array.from(x) } );
   * jet.type.define("ele", Element, { rank:-1 }, { find:query=>document.querySelector(query) });
@@ -172,7 +172,7 @@ _Map any mapable object by default: Object, Array, Set, Map, Pool_
   * fce: _function(val, key, path) (handler)_
   * deep: _boolean (recursive maping)_
 * Return
-  * it: _count items in structure_
+  * it: _flat array containing all items_
   * of: _copy of structure with result from handler function_
 * Example
   * jet.map.it({foo:"bar"}, _=>_) == 1;
