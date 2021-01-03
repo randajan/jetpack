@@ -87,7 +87,7 @@ class Engage extends Promise {
             },
             then:(onresolve, onreject, timeout)=>{
                 let child;
-                const exe = res=>jet.run(this.is("result") ? onresolve : onreject, res, child);
+                const exe = res=>jet.fce.run(this.is("result") ? onresolve : onreject, res, child);
                 return child = new Engage(_then(exe, exe), timeout, this);
             },
             echo:(state, msg)=>{
