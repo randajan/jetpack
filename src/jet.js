@@ -122,7 +122,7 @@ jet.type = new Complex(
                 },
                 full:any=>{
                     const t = jet.type.raw(any);
-                    return t ? t.full(any) : _iu(any, t.vals);
+                    return t ? t.full(any) : _iu(any);
                 },
             }
         ),
