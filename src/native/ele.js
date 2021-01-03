@@ -115,15 +115,15 @@ export default {
                     if (init) { _b.prevX = _b.startX = _b.x; _b.prevY = _b.startY = _b.y; }
                     
                     if (state === "stop") { _b.stopTime = new Date(); }
-                    if (state === "move") {
-                        bound.distX = bound.distX*opt[bound.dirX];
-                        bound.distY = bound.distY*opt[bound.dirY];
-                    }
-                    else {
+                    if (state === "stop" || state === "start") {
                         DRAG.evlist.map(ev=>[
                             jet.ele.listen(D, ev, move, null, state === "start"),
                             DRAG.evmap[ev] === "move" ? jet.ele.listen(ele, ev, null, null, state === "start") : null
                         ]);
+                    } 
+                    if (state === "stop" || state === "move") {
+                        bound.distX = bound.distX*opt[bound.dirX];
+                        bound.distY = bound.distY*opt[bound.dirY];
                     }
                     if (appendState) {
                         if (state === "move") { ele.setAttribute("data-drift", [bound.dirY, bound.dirX].join(" ")); }
@@ -158,9 +158,9 @@ export default {
         
                 return jet.ele.listen.drift(ele, (ev, bound)=>{
                     onShift(ev, bound);
-                    if (bound.state === "stop" && autoReset) { bound.distX = 0; bound.distY = 0; }
                     if (bound.state === "move") { jet.ele.listen.cut(ev); }
-                    set(absolute ? bound.x : bound.relX, absolute ? bound.y : bound.relY);
+                    if (bound.state === "stop" && autoReset) { set(initX, initY); }
+                    else { set(absolute ? bound.x : bound.relX, absolute ? bound.y : bound.relY); }
                 }, opt)
             },
             swipe(ele, onSwipe, opt) {
