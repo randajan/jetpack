@@ -35,8 +35,7 @@ jet.type.define("obj", Object, {
     copy:x=>Object.defineProperties({}, Object.getOwnPropertyDescriptors(x)),
     keys:x=>Object.keys(x),
     vals:x=>Object.values(x),
-    pairs:x=>Object.entries(x),
-    full:v=>{for (let i in v) {return true}; return false;}
+    pairs:x=>Object.entries(x)
 }, obj)
 
 jet.type.define("bol", Boolean, {
@@ -124,8 +123,7 @@ jet.type.define("arr", Array, {
     copy:x=>Array.from(x),
     keys:x=>x.keys(),
     vals:x=>x.values(),
-    pairs:x=>x.entries(),
-    full:x=>!!x.length
+    pairs:x=>x.entries()
 }, arr);
 
 jet.type.define("ele", Element, {
@@ -144,8 +142,7 @@ jet.type.define("set", Set, {
     pairs:x=>x.entries(),
     get:(x,k)=>x.has(k)?k:undefined,
     set:(x,k,v)=>x.add(v)?v:undefined,
-    rem:(x,k)=>x.delete(k),
-    full:x=>!!x.size
+    rem:(x,k)=>x.delete(k)
 });
 
 const oMap = unBundle(Map);
@@ -167,7 +164,6 @@ jet.type.define("complex", Complex);
 jet.type.define("eng", Engage, { is:Engage.is });
 
 jet.type.define("pool", Pool, {
-    full:x=>!!x.length,
     keys:x=>x.keys(),
     vals:x=>x.values(),
     pairs:x=>x.entries(),
@@ -176,7 +172,6 @@ jet.type.define("pool", Pool, {
 });
 
 jet.type.define("rupl", RunPool, {
-    full:x=>!!x.length,
     keys:x=>x.keys(),
     vals:x=>x.values(),
     pairs:x=>x.entries(),
@@ -185,7 +180,6 @@ jet.type.define("rupl", RunPool, {
 });
 
 jet.type.define("sort", Sort, {
-    full:x=>!!x.length,
     keys:x=>x.keys(),
     vals:x=>x.values(),
     pairs:x=>x.entries(),

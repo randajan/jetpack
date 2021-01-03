@@ -6,10 +6,14 @@ const magicMethod = ["only", "full", "tap", "pull", "is", "to", "copy", "rnd"];
 
 function _i(any) {
     const t = typeof any;
-    return (t === "function" || t === "object");
+    return any != null && (t === "function" || t === "object");
 }
 function _io(name, any) { return any instanceof name; } //is instance comparing
-function _iu(any) { return (any === false || any === 0 || !!any)}
+function _iu(any, vals) {
+    if (!vals) { return (any === false || any === 0 || !!any); }
+    for (let v of vals(any)) { if (v != null) { return true; }}
+    return false;
+}
 
 function _id(any, all, withDefinition) {
     const td = typeof any, wd = withDefinition, r = all ? [] : undefined; 
@@ -35,12 +39,17 @@ function _touch(any, op, ...args) {
 function _factory(name, mm, ...args) {
     const n = _i(name);
     const t = jet.type.index[name];
+
     if (n && mm > 0) { console.warn("Unable execute '"+magicMethod[mm]+"' - unavailable for constructors"); return; }
-    if (!n && !t) { console.warn("Unable execute '"+magicMethod[mm]+"' - unknown type '"+name+"'"); return; }
+    if (name && !n && !t) { console.warn("Unable execute '"+magicMethod[mm]+"' - unknown type '"+name+"'"); return; }
+    if (!name && mm !== 1) { console.warn("Unable execute '"+magicMethod[mm]+"' - missing type"); return; }
+
     for (let a of args) {
         if (!n) {
             const at = _id(a, false, true);
-            if (at && at.name === name && (mm !== 1 || at.full(a))) { return mm === 3 ? at.copy(a) : a; }
+            if ((!name || (at && at.name === name)) && (mm !== 1 || (at && at.full(a) || (!at && _iu(a))))) {
+                return mm === 3 ? at.copy(a) : a;
+            }
         }
         else if (_io(name, a)) { return a; }
     }
@@ -113,13 +122,16 @@ jet.type = new Complex(
                 },
                 full:any=>{
                     const t = jet.type.raw(any);
-                    return t ? t.full(any) : _iu(any);
+                    return t ? t.full(any) : _iu(any, t.vals);
                 },
             }
         ),
         to:(name, any, ...a)=>_to(name, any, ...a),
         only:(name, ...a)=>_factory(name, 0, ...a),
-        full:(name, ...a)=>_factory(name, 1, ...a),
+        full:new Complex(
+            (name, ...a)=>_factory(name, 1, ...a),
+            { any:(...a)=>_factory(null, 1, ...a) }
+        ),
         tap:(name, ...a)=>_factory(name, 2, ...a),
         pull:(name, ...a)=>_factory(name, 3, ...a),
         copy:(any, ...a)=>_copy(any, ...a),
@@ -151,7 +163,7 @@ jet.type = new Complex(
             rank = rank || 0;
             create = create || ((...a)=>new constructor(...a));
             is = is || (any=>_io(constructor, any));
-            full = full || _iu;
+            full = full || (any=>_iu(any, vals));
             copy = copy || (any=>any);
             rnd = rnd || create;
 
