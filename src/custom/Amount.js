@@ -64,7 +64,7 @@ class Amount {
 Amount.validateUnit = (unit, force)=>{
     if (temp.index[unit]) { return unit; }
     if (force) { return ""; }
-    console.warn("Undefined amount units '"+unit+"'");
+    //console.warn("Undefined amount units '"+unit+"'");
 }
 
 Amount.validatePair = (unit, parent, force)=>{
@@ -72,7 +72,7 @@ Amount.validatePair = (unit, parent, force)=>{
     parent = Amount.validateUnit(parent, force);
     if (unit && parent && temp.index[unit][parent]) { return unit; }
     if (force) { return ""; }
-    console.warn("Undefined amount relation '"+unit+"' to '"+parent+"'");
+    //console.warn("Undefined amount relation '"+unit+"' to '"+parent+"'");
 }
 
 Amount.parse = (any)=>{

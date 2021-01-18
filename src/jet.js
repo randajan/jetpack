@@ -15,23 +15,28 @@ function _iu(any, vals) {
     return false;
 }
 
-function _id(any, all, withDefinition) {
-    const td = typeof any, wd = withDefinition, r = all ? [] : undefined; 
-    if (any == null) { return r; }
-    for (let t of jet.type.list) {
+function _id(primitive, any, all, withDefinition) {
+    const td = typeof any, r = all ? [] : undefined;
+    primitive = primitive || td;
+    if (any == null || primitive !== td || !jet.type.nest[primitive]) { return r; }
+
+    for (let t of jet.type.nest[primitive]) {
         if (!t.is(any, td)) { continue; }
-        let n = wd ? t : t.name;
+        if (primitive !== t.primitive) { console.log(t); }
+        let n = withDefinition ? t : t.name;
         if (r) { r.push(n) } else { return n; }
     }
-    if (wd) { return r; } else if (!r) { return td; } else { r.push(td); return r; }
+    if (withDefinition) { return r; } else if (!r) { return td; } else { r.push(td); return r; }
 }
 
-function _is(name, any, inclusive) {
-    return _i(name) ? _io(name, any) : inclusive ? _id(any, true).includes(name) : name === _id(any);
+function _is(name, any, inclusive) { //REPAIR
+    const t = jet.type.index[name];
+    if (t) { return inclusive ? _id(t.primitive, any, true).includes(name) : name === _id(t.primitive, any); }
+    return _i(name) ? _io(name, any) : false;
 }
 
-function _touch(any, op, ...args) {
-    const t = _id(any, false, true);
+function _touch(any, op, ...args) { //REPAIR
+    const t = _id(null, any, false, true);
     if (t && t[op]) { return t[op](any, ...args); }
 }
 
@@ -46,7 +51,7 @@ function _factory(name, mm, ...args) {
 
     for (let a of args) {
         if (!n) {
-            const at = _id(a, false, true);
+            const at = _id(t ? t.primitive : null, a, false, true);
             if ((!name || (at && at.name === name)) && (mm !== 1 || (at && at.full(a) || (!at && _iu(a))))) {
                 return mm === 3 ? at.copy(a) : a;
             }
@@ -56,25 +61,25 @@ function _factory(name, mm, ...args) {
     if (mm > 1) { return t.create(); }
 }
 
-function _to(type, any, ...args) {
-    const t = jet.type.index[type];
-    if (!t) { console.warn("Unable execute 'to'. Unknown type '"+type+"'"); return; }
-    const at = _id(any, false, true);
+function _to(name, any, ...args) {
+    const t = jet.type.index[name];
+    if (!t) { console.warn("Unable execute 'to'. Unknown type '"+name+"'"); return; }
+    const at = _id(t.primitive, any, false, true);
     if (!at) { return t.create(); }
     if (t.name === at.name) { return any; }
-    const exe = at.to[type] || at.to["*"]; 
-    return exe ? _to(type, exe(any, ...args), ...args) : t.create(any);
+    const exe = at.to[name] || at.to["*"]; 
+    return exe ? _to(name, exe(any, ...args), ...args) : t.create(any);
 }
 
 function _copy(any, ...args) {
-    const t = _id(any, false, true);
-    if (!t) { console.warn("Unable execute 'copy' unknown type '"+type+"'"); return; }
+    const t = _id(null, any, false, true);
+    if (!t) { console.warn("Unable execute 'copy' unknown type '"+t.name+"'"); return; }
     return t.copy(any, ...args);
 }
 
 function _toDefine(from, to, exe) {
     const type = jet.type.index;
-    const tt = _id(to);
+    const tt = _id(null, to);
     if (!type[from]) {throw new Error("Can't add conversion! Type '" + from + "' wasn't defined!!!");}
     const conv = type[from].to;
     if (tt === "arr") { for (let i in to) { conv[to[i]] = exe; } }
@@ -106,12 +111,13 @@ function _rndKey(arr, min, max, sqr) { //get random element from array or string
 };
 
 jet.type = new Complex(
-    (any, all)=>_id(any, all), 
+    (any, all)=>_id(null, any, all), 
     {
+        nest:{},
         list:[],
         index:{},
-        all:any=>_id(any, true),
-        raw:any=>_id(any, false, true),
+        all:any=>_id(null, any, true),
+        raw:any=>_id(null, any, false, true),
         is:new Complex(
             _is,
             {
@@ -151,7 +157,7 @@ jet.type = new Complex(
             }
         ),
         define:(name, constructor, opt, custom)=>{
-            const { list, index } = jet.type;
+            const { index, nest } = jet.type;
             let { rank, create, is, full, copy, rnd, keys, vals, pairs, get, set, rem } = (opt || {});
 
             const err = "Jet type '" + name + "'";
@@ -166,6 +172,12 @@ jet.type = new Complex(
             full = full || (any=>_iu(any, vals));
             copy = copy || (any=>any);
             rnd = rnd || create;
+
+            const temp = create();
+            const primitive = typeof temp;
+
+            if (temp == null) { throw new Error(err+" 'create' didn't create anything!!!"); }
+            if (!is(temp, primitive)) { throw new Error(err+" 'is' doesn't match the create output!!!"); }
 
             const fix = {
                 is:new Complex(
@@ -207,8 +219,10 @@ jet.type = new Complex(
                 );
             }
 
+            const list = nest[primitive] || (nest[primitive] = []);
+
             list.push(index[name] = {
-                rank, name, constructor, is, create, full, copy, keys, vals, pairs, get, set, rem,
+                rank, name, constructor, primitive, is, create, full, copy, keys, vals, pairs, get, set, rem,
                 expand:filter=>_expand(name, filter), to:{}
             });
 

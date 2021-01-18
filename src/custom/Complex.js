@@ -12,7 +12,7 @@ class Complex extends Function {
 
     constructor(fce, fix, temp) {
         super();
-        const self = fce.bind();
+        const self = fce ? fce.bind() : this;
         define(self, fix, false);
         define(self, temp, true);
         return Object.setPrototypeOf(self, new.target.prototype);
