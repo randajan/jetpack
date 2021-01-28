@@ -19,7 +19,6 @@ import ArrayLike from "./custom/ArrayLike";
 import Pool from "./custom/Pool";
 import RunPool from "./custom/RunPool";
 import Sort from "./custom/Sort";
-import Lexicon from "./custom/Lexicon";
 
 
 function unBundle(Prototyp) {
@@ -310,5 +309,4 @@ export {
     ArrayLike,
     Pool,
     RunPool,
-    Lexicon
 }

@@ -11,8 +11,8 @@ export default {
     round: function (num, dec, kind) { const k = Math.pow(10, dec || 0); return Math[kind == null ? "round" : kind ? "ceil" : "floor"](num * k) / k; },
     len: function (num, bol) { const b = bol, s = jet.str.to(num), l = s.length, i = s.indexOf("."), p = (i >= 0); return (b === false ? (p ? l - i - 1 : 0) : ((!p || !b) ? l : i)); },
     period: function (val, min, max) { const m = max - min; return (m + (val - min) % m) % m + min; },
-    toRatio: function (num, min, max) { const n = min, m = max - n; return (num - n) / m; },
-    fromRatio: function (num, min, max) { const n = min, m = max - n; return num * m + n; },
+    toRatio: function (num, min, max) { const m = max - min; return m ? (num - min) / m : 0; },
+    fromRatio: function (num, min, max) { const m = max - min; return num * m + min; },
     zoomIn: function (...nums) {
         const zoom = Math.pow(10, Math.max(...nums.map(num => jet.num.len(num, false))));
         return jet.obj.prop.add(nums.map(num => Math.round(num * zoom)), "zoom", zoom);
