@@ -1,11 +1,6 @@
 import jet from "../jet.js";
 import Complex from "../custom/Complex";
 
-const W = window;
-const D = document;
-const B = D.body;
-const H = D.documentElement;
-
 const enumerable = true;
 const DRAG = {
     evmap:{ mousedown:"start", touchstart:"start", mouseup:"stop", touchend:"stop", mousemove:"move", touchmove:"move" },
@@ -18,15 +13,15 @@ const DRAG = {
 
 export default {
     find(query, all) {
-        return all ? D.querySelectorAll(query) : D.querySelector(query);
+        return all ? document.querySelectorAll(query) : document.querySelector(query);
     },
     parent(ele) {
         return jet.ele.is(ele) ? ele.parentElement || ele.parentNode : undefined;
     },
     scroll(ele) {
         const s = "scroll", c = "client";
-        const real = (ele !== B && jet.ele.is(ele));
-        let w = W, h = H, b = B;
+        let w = window, h = document.documentElement, b = document.body;
+        const real = (ele !== b && jet.ele.is(ele));
         if (real) { w = h = b = ele; }
         return jet.map.of({top:"Y", left:"X"}, (v, k)=>{
             let d = jet.str.capitalize(k);
@@ -49,7 +44,7 @@ export default {
     },
     listen:new Complex(
         (ele, type, handler, opt, append)=>{
-            ele = jet.ele.only(ele) || D;
+            ele = jet.ele.only(ele) || document;
             type = jet.str.tap(type, "click");
             handler = jet.fce.tap(handler, jet.ele.listen.cut);
             append = jet.bol.tap(append, true);
@@ -117,7 +112,7 @@ export default {
                     if (state === "stop") { _b.stopTime = new Date(); }
                     if (state === "stop" || state === "start") {
                         DRAG.evlist.map(ev=>[
-                            jet.ele.listen(D, ev, move, null, state === "start"),
+                            jet.ele.listen(document, ev, move, null, state === "start"),
                             DRAG.evmap[ev] === "move" ? jet.ele.listen(ele, ev, null, null, state === "start") : null
                         ]);
                     } 
